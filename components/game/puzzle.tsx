@@ -56,7 +56,7 @@ export function PuzzlePanel({
 
   return (
     <div className="space-y-4">
-      <div className="space-y-3 rounded-xl border-2 border-red-500/40 bg-red-500/5 p-5">
+      <div className="frame-corners space-y-3 rounded-xl border border-red-500/40 bg-red-500/5 p-5">
         <div className="flex items-center gap-2">
           <ShieldAlert className="size-5 text-red-500" />
           <h3 className="text-lg font-bold">{def.title}</h3>

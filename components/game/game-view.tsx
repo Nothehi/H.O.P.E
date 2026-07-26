@@ -205,10 +205,12 @@ export function GameView({
 
   return (
     <div className="flex h-dvh flex-col">
-      <header className="flex items-center gap-2 border-b px-4 py-2.5">
+      <header className="flex items-center gap-2 border-b bg-card/60 px-4 py-2.5">
         <Satellite className="size-5 text-primary" />
         <div className="flex min-w-0 items-center gap-2">
-          <h1 className="truncate font-black tracking-wide">H.O.P.E.</h1>
+          <h1 className="truncate text-sm font-bold uppercase tracking-[0.25em]">
+            H.O.P.E.
+          </h1>
           <Badge variant="outline" className="hidden font-mono sm:inline-flex">
             {roomId}
           </Badge>

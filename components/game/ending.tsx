@@ -28,7 +28,7 @@ export function EndingPanel({
     <div className="mx-auto max-w-2xl space-y-6 py-4">
       {ending && (
         <div
-          className={`space-y-3 rounded-xl border-2 p-6 text-center ${
+          className={`frame-corners space-y-3 rounded-xl border p-6 text-center ${
             ending.survived
               ? "border-emerald-500/50 bg-emerald-500/5"
               : "border-red-500/50 bg-red-500/5"

@@ -24,7 +24,7 @@ export function Lobby({
   return (
     <div className="mx-auto max-w-2xl space-y-6 py-4">
       <div className="space-y-1 text-center">
-        <h2 className="text-xl font-bold">
+        <h2 className="text-lg font-bold uppercase tracking-[0.2em]">
           Voyage {chronicle.voyage + 1} — Crew Muster
         </h2>
         <p className="text-sm text-muted-foreground">

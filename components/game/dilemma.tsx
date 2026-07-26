@@ -57,7 +57,7 @@ export function EnvelopeReveal({ envelopeId }: { envelopeId: string }) {
   const env = ENVELOPES[envelopeId];
   if (!env) return null;
   return (
-    <div className="space-y-2 rounded-xl border-2 border-dashed border-amber-500/60 bg-amber-500/5 p-4">
+    <div className="space-y-2 rounded-xl border border-dashed border-amber-500/60 bg-amber-500/5 p-4">
       <div className="flex items-center gap-2 font-semibold text-amber-600 dark:text-amber-400">
         <Mail className="size-4" />
         {env.title}
@@ -71,7 +71,7 @@ function CardFace({ cardId }: { cardId: string }) {
   const card = CARDS[cardId];
   if (!card) return null;
   return (
-    <div className="space-y-3 rounded-xl border bg-card p-5 shadow-sm">
+    <div className="frame-corners space-y-3 rounded-xl border bg-card p-5">
       <div className="flex items-center gap-2">
         <h3 className="text-lg font-bold">{card.title}</h3>
         <Badge variant="secondary" className="ml-auto">
@@ -129,7 +129,7 @@ export function DilemmaPanel({
   if (game.phase === "reveal") {
     return (
       <div className="flex flex-col items-center gap-4 py-10 text-center">
-        <div className="flex h-40 w-28 items-center justify-center rounded-xl border-2 bg-gradient-to-br from-primary/20 to-primary/5 shadow-md">
+        <div className="frame-corners flex h-40 w-28 items-center justify-center border bg-card">
           <span className="font-mono text-2xl font-black tracking-widest text-primary">
             H.O.P.E.
           </span>
@@ -165,7 +165,7 @@ export function DilemmaPanel({
       <div className="space-y-4">
         <CardFace cardId={card.id} />
         {iAmTech ? (
-          <div className="space-y-3 rounded-xl border-2 border-emerald-500/50 bg-emerald-500/5 p-4">
+          <div className="space-y-3 rounded-xl border border-emerald-500/50 bg-emerald-500/5 p-4">
             <div className="flex items-center gap-2 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
               <Eye className="size-4" />
               Predictive systems — your eyes only. Lie if you like.

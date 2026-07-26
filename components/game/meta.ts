@@ -65,31 +65,27 @@ export const ROLE_META: Record<
 
 export const RESOURCE_META: Record<
   ResourceKey,
-  { label: string; icon: LucideIcon; barClass: string; textClass: string }
+  { label: string; icon: LucideIcon; textClass: string }
 > = {
   oxygen: {
     label: "Oxygen",
     icon: Wind,
-    barClass: "bg-sky-500",
-    textClass: "text-sky-500",
+    textClass: "text-sky-400",
   },
   hull: {
     label: "Hull",
     icon: Shield,
-    barClass: "bg-amber-500",
-    textClass: "text-amber-500",
+    textClass: "text-amber-400",
   },
   morale: {
     label: "Morale",
     icon: Heart,
-    barClass: "bg-rose-500",
-    textClass: "text-rose-500",
+    textClass: "text-rose-400",
   },
   bond: {
     label: "Bond",
     icon: Sparkles,
-    barClass: "bg-violet-500",
-    textClass: "text-violet-500",
+    textClass: "text-violet-400",
   },
 };
 

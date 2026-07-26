@@ -41,13 +41,17 @@ function Track({ game, k }: { game: GameState; k: ResourceKey }) {
           <Sticker key={s.id} label={s.label} positive={s.positive} />
         ))}
       </div>
-      <div className="flex gap-0.5">
+      <div className="flex h-3 items-stretch gap-[3px]">
         {Array.from({ length: max }, (_, i) => (
           <div
             key={i}
-            className={`h-2 flex-1 rounded-sm ${
-              i < value ? meta.barClass : "bg-muted"
-            } ${value <= 3 && i < value ? "animate-pulse" : ""}`}
+            className={`w-[3px] ${
+              i < value
+                ? value <= 3
+                  ? "animate-pulse bg-red-500"
+                  : "bg-foreground"
+                : "bg-foreground/20"
+            }`}
           />
         ))}
       </div>
@@ -64,7 +68,7 @@ export function ShipBoard({
 }) {
   return (
     <div className="space-y-4">
-      <div className="space-y-3 rounded-xl border bg-card p-4">
+      <div className="frame-corners space-y-3 rounded-xl border bg-card p-4">
         <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
           Vital Systems
         </h3>
@@ -73,7 +77,7 @@ export function ShipBoard({
         ))}
       </div>
 
-      <div className="rounded-xl border bg-card p-4">
+      <div className="frame-corners rounded-xl border bg-card p-4">
         <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
           Ship Zones
         </h3>
