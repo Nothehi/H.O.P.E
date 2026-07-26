@@ -5,11 +5,11 @@
  * must be supplied from outside. Two sources, in precedence order:
  *
  * 1. Runtime fetch (preferred for TURN providers with short-lived
- *    credentials, e.g. Cloudflare). If `NEXT_PUBLIC_ICE_SERVERS_URL` is set,
- *    we fetch ICE servers from it at connect time. That endpoint (see
- *    `worker/`) holds the provider API token server-side and mints fresh
- *    credentials, so nothing secret ships in the bundle and creds never go
- *    stale.
+ *    credentials). If `NEXT_PUBLIC_ICE_SERVERS_URL` is set, we fetch ICE
+ *    servers from it at connect time. This can point directly at a provider's
+ *    client-side credentials API (e.g. Metered's, which is CORS-open and
+ *    returns a bare array) or at the proxy worker in `worker/` (which keeps a
+ *    provider API token server-side and returns `{ iceServers, ttl }`).
  * 2. Build-time env. `NEXT_PUBLIC_*` STUN/TURN vars are inlined into the
  *    bundle at build time — simplest, but only works with providers that
  *    issue long-lived static credentials, which then sit in the public JS.
@@ -85,14 +85,18 @@ async function fetchIceServers(url: string): Promise<RTCIceServer[] | null> {
   try {
     const res = await fetch(url, { signal: controller.signal });
     if (!res.ok) throw new Error(`ICE endpoint returned ${res.status}`);
-    const data: { iceServers?: RTCIceServer | RTCIceServer[]; ttl?: number } =
+    const data:
+      | RTCIceServer[]
+      | { iceServers?: RTCIceServer | RTCIceServer[]; ttl?: number } =
       await res.json();
-    // Cloudflare returns a single combined server object; others may return
-    // an array. Normalize to an array either way.
-    const raw = data.iceServers;
+    // Two response shapes are accepted: a bare array (e.g. Metered's
+    // credentials API) or an object with an `iceServers` field (our worker /
+    // Cloudflare style, where iceServers may be a single combined object).
+    const raw = Array.isArray(data) ? data : data.iceServers;
     if (!raw) throw new Error("ICE endpoint returned no iceServers");
     const servers = Array.isArray(raw) ? raw : [raw];
-    const ttlMs = (Number(data.ttl) || 3600) * 1000;
+    const ttl = Array.isArray(data) ? undefined : data.ttl;
+    const ttlMs = (Number(ttl) || 3600) * 1000;
     iceCache = { servers, expiresAt: Date.now() + ttlMs * ICE_REFRESH_RATIO };
     return servers;
   } catch (err) {
