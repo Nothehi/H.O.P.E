@@ -1,0 +1,13 @@
+{
+  "name": "hope-turn",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cloudflare Worker that mints TURN credentials for H.O.P.E.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4"
+  }
+}

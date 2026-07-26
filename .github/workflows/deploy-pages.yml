@@ -49,6 +49,7 @@ jobs:
           NEXT_PUBLIC_PEER_PATH: ${{ vars.PEER_PATH }}
           NEXT_PUBLIC_PEER_SECURE: ${{ vars.PEER_SECURE }}
           NEXT_PUBLIC_PEER_KEY: ${{ vars.PEER_KEY }}
+          NEXT_PUBLIC_ICE_SERVERS_URL: ${{ vars.ICE_SERVERS_URL }}
           NEXT_PUBLIC_STUN_URLS: ${{ vars.STUN_URLS }}
           NEXT_PUBLIC_TURN_URLS: ${{ vars.TURN_URLS }}
           NEXT_PUBLIC_TURN_USERNAME: ${{ secrets.TURN_USERNAME }}

@@ -1,0 +1,13 @@
+name = "hope-turn"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+
+# Non-secret config. Set ALLOWED_ORIGIN to your exact Pages origin, e.g.
+# "https://<user>.github.io" — using "*" lets any site spend your TURN quota.
+[vars]
+ALLOWED_ORIGIN = "*"
+CREDENTIAL_TTL = "86400"
+
+# Secrets are NOT stored here. Set them once with:
+#   npx wrangler secret put TURN_KEY_ID
+#   npx wrangler secret put TURN_KEY_API_TOKEN

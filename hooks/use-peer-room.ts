@@ -14,7 +14,7 @@ import {
   type MeshPayload,
   type RoomStatus,
 } from "@/lib/protocol";
-import { peerOptions } from "@/lib/peer-config";
+import { resolvePeerOptions } from "@/lib/peer-config";
 
 const HEARTBEAT_INTERVAL_MS = 5_000;
 const HEARTBEAT_TIMEOUT_MS = 15_000;
@@ -128,7 +128,11 @@ export function usePeerRoom(
       claimTimer = setTimeout(async () => {
         if (disposed || beaconRef.current) return;
         const { default: PeerCtor } = await import("peerjs");
-        const candidate = new PeerCtor(beaconId(roomId), peerOptions());
+        // Resolve fresh here: host migration can happen long after start(),
+        // by which point fetched TURN credentials may have expired.
+        const options = await resolvePeerOptions();
+        if (disposed || beaconRef.current) return;
+        const candidate = new PeerCtor(beaconId(roomId), options);
         candidate.on("open", () => {
           if (disposed) {
             candidate.destroy();
@@ -293,7 +297,12 @@ export function usePeerRoom(
       if (disposed) return;
       setStatus("connecting");
 
-      const self = new PeerCtor(meshId(roomId), peerOptions());
+      // Resolve once and share across this membership's peers: the mesh peer
+      // and (if hosting) the beacon must use the same signaling + ICE config.
+      const options = await resolvePeerOptions();
+      if (disposed) return;
+
+      const self = new PeerCtor(meshId(roomId), options);
       peerRef.current = self;
 
       // Join path: ask the beacon for the member list, then mesh out.
@@ -323,7 +332,7 @@ export function usePeerRoom(
         setSelfId(id);
 
         if (create) {
-          const beacon = new PeerCtor(beaconId(roomId), peerOptions());
+          const beacon = new PeerCtor(beaconId(roomId), options);
           beacon.on("open", () => {
             if (disposed) return;
             beaconRef.current = beacon;

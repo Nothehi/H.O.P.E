@@ -1,25 +1,31 @@
 /**
- * Build-time PeerJS configuration.
+ * PeerJS configuration: signaling host + STUN/TURN ICE servers.
  *
- * The app is a static site with no backend of its own, so the signaling
- * server and STUN/TURN relays must be supplied from outside. These are read
- * from `NEXT_PUBLIC_*` env vars, which Next.js inlines into the client bundle
- * at build time (see the deploy workflow / .env.example).
+ * The app is a static site with no backend of its own, so this infrastructure
+ * must be supplied from outside. Two sources, in precedence order:
  *
- * When nothing is configured we fall back to PeerJS's public defaults
- * (`0.peerjs.com` broker + Google STUN + `*.turn.peerjs.com`). Those defaults
- * are rate-limited and unreliable across networks — fine for a quick local
- * try, but a real deployment should point at its own signaling host and TURN.
+ * 1. Runtime fetch (preferred for TURN providers with short-lived
+ *    credentials, e.g. Cloudflare). If `NEXT_PUBLIC_ICE_SERVERS_URL` is set,
+ *    we fetch ICE servers from it at connect time. That endpoint (see
+ *    `worker/`) holds the provider API token server-side and mints fresh
+ *    credentials, so nothing secret ships in the bundle and creds never go
+ *    stale.
+ * 2. Build-time env. `NEXT_PUBLIC_*` STUN/TURN vars are inlined into the
+ *    bundle at build time — simplest, but only works with providers that
+ *    issue long-lived static credentials, which then sit in the public JS.
  *
- * NOTE: TURN credentials given here end up in the public JS bundle. That is
- * inherent to browser WebRTC — the client always sees them. Use a provider
- * that issues long-lived static credentials for this, or short-lived tokens
- * if you later add a backend to mint them.
+ * With neither set we fall back to PeerJS's public defaults (`0.peerjs.com`
+ * broker + Google STUN + `*.turn.peerjs.com`), which are rate-limited and
+ * unreliable across networks — fine for a quick local try only.
  */
 
 import type { PeerOptions } from "peerjs";
 
 const DEFAULT_STUN = "stun:stun.l.google.com:19302";
+
+/** Refetch this fraction into the credential lifetime, before it expires. */
+const ICE_REFRESH_RATIO = 0.9;
+const ICE_FETCH_TIMEOUT_MS = 5_000;
 
 /** Split a comma/whitespace-separated env value into a clean URL list. */
 function urlList(value: string): string[] {
@@ -29,16 +35,14 @@ function urlList(value: string): string[] {
     .filter(Boolean);
 }
 
-function iceServers(): RTCIceServer[] | undefined {
+/** ICE servers from build-time env, or undefined to use PeerJS defaults. */
+function staticIceServers(): RTCIceServer[] | undefined {
   const stun = process.env.NEXT_PUBLIC_STUN_URLS;
   const turn = process.env.NEXT_PUBLIC_TURN_URLS;
 
-  // Nothing configured: let PeerJS use its built-in (public) defaults.
   if (!stun && !turn) return undefined;
 
-  const servers: RTCIceServer[] = [
-    { urls: urlList(stun || DEFAULT_STUN) },
-  ];
+  const servers: RTCIceServer[] = [{ urls: urlList(stun || DEFAULT_STUN) }];
 
   if (turn) {
     servers.push({
@@ -51,14 +55,9 @@ function iceServers(): RTCIceServer[] | undefined {
   return servers;
 }
 
-/**
- * PeerJS options for every `new Peer(...)` in the app. Both the beacon and
- * mesh peers of a room must share these so they meet on the same signaling
- * server and negotiate over the same ICE servers.
- */
-export function peerOptions(): PeerOptions {
+/** Signaling-server options; empty object means PeerJS's public cloud. */
+function signalingOptions(): PeerOptions {
   const options: PeerOptions = {};
-
   const host = process.env.NEXT_PUBLIC_PEER_HOST;
   if (host) {
     options.host = host;
@@ -70,9 +69,56 @@ export function peerOptions(): PeerOptions {
       options.key = process.env.NEXT_PUBLIC_PEER_KEY;
     }
   }
+  return options;
+}
 
-  const ice = iceServers();
-  if (ice) options.config = { iceServers: ice };
+// Cache the fetched ICE servers for their (near-)lifetime so all peers in one
+// membership share a set without hammering the endpoint. Refreshed once the
+// credentials approach expiry (relevant for long sessions / host migration).
+let iceCache: { servers: RTCIceServer[]; expiresAt: number } | null = null;
+
+async function fetchIceServers(url: string): Promise<RTCIceServer[] | null> {
+  if (iceCache && Date.now() < iceCache.expiresAt) return iceCache.servers;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ICE_FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    if (!res.ok) throw new Error(`ICE endpoint returned ${res.status}`);
+    const data: { iceServers?: RTCIceServer | RTCIceServer[]; ttl?: number } =
+      await res.json();
+    // Cloudflare returns a single combined server object; others may return
+    // an array. Normalize to an array either way.
+    const raw = data.iceServers;
+    if (!raw) throw new Error("ICE endpoint returned no iceServers");
+    const servers = Array.isArray(raw) ? raw : [raw];
+    const ttlMs = (Number(data.ttl) || 3600) * 1000;
+    iceCache = { servers, expiresAt: Date.now() + ttlMs * ICE_REFRESH_RATIO };
+    return servers;
+  } catch (err) {
+    // Fall back to static/default ICE rather than failing the whole join.
+    console.warn("Could not fetch ICE servers; falling back.", err);
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * Resolve the PeerJS options for every `new Peer(...)` in the app. Both the
+ * beacon and mesh peers of a room must share these so they meet on the same
+ * signaling server and negotiate over the same ICE servers.
+ *
+ * Async because ICE servers may be fetched at runtime; the result is cached,
+ * so calling this per-peer is cheap.
+ */
+export async function resolvePeerOptions(): Promise<PeerOptions> {
+  const options = signalingOptions();
+
+  const iceUrl = process.env.NEXT_PUBLIC_ICE_SERVERS_URL;
+  const ice = iceUrl ? await fetchIceServers(iceUrl) : null;
+  const servers = ice ?? staticIceServers();
+  if (servers) options.config = { iceServers: servers };
 
   return options;
 }
