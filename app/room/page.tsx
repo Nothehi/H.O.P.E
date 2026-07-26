@@ -1,7 +1,7 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -90,11 +90,16 @@ function RoomGate({ roomId }: { roomId: string }) {
   return <GameView roomId={roomId} displayName={name} create={create} />;
 }
 
-export default function RoomPage({
-  params,
-}: {
-  params: Promise<{ roomId: string }>;
-}) {
-  const { roomId } = use(params);
-  return <RoomGate roomId={normalizeRoomId(roomId)} />;
+function RoomFromQuery() {
+  const searchParams = useSearchParams();
+  const roomId = normalizeRoomId(searchParams.get("id") ?? "");
+  return <RoomGate roomId={roomId} />;
+}
+
+export default function RoomPage() {
+  return (
+    <Suspense fallback={null}>
+      <RoomFromQuery />
+    </Suspense>
+  );
 }

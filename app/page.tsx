@@ -43,7 +43,7 @@ export default function Home() {
     // Per-tab flag: this tab owns the room beacon. Never part of the URL,
     // so shared links always join instead of trying to re-create.
     if (create) sessionStorage.setItem(`wt-create:${roomId}`, "1");
-    router.push(`/room/${roomId}`);
+    router.push(`/room?id=${encodeURIComponent(roomId)}`);
   };
 
   const handleCreate = () => enterRoom(generateRoomId(), true);
@@ -58,13 +58,13 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-1 items-center justify-center bg-muted/40 p-4">
-      <Card className="w-full max-w-md">
+    <main className="flex flex-1 items-center justify-center p-4">
+      <Card className="frame-corners w-full max-w-md overflow-visible border">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
+          <div className="mx-auto mb-2 flex size-12 items-center justify-center border bg-primary text-primary-foreground">
             <Satellite className="size-6" />
           </div>
-          <CardTitle className="text-2xl font-black tracking-wide">
+          <CardTitle className="text-2xl font-bold uppercase tracking-[0.3em]">
             H.O.P.E.
           </CardTitle>
           <CardDescription>
@@ -76,7 +76,10 @@ export default function Home() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <label htmlFor="name" className="text-sm font-medium">
+            <label
+              htmlFor="name"
+              className="text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+            >
               Display name
             </label>
             <Input
@@ -100,7 +103,7 @@ export default function Home() {
 
           <div className="flex items-center gap-3">
             <Separator className="flex-1" />
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs uppercase tracking-widest text-muted-foreground">
               or board an existing one
             </span>
             <Separator className="flex-1" />
