@@ -14,6 +14,7 @@ import {
   type MeshPayload,
   type RoomStatus,
 } from "@/lib/protocol";
+import { peerOptions } from "@/lib/peer-config";
 
 const HEARTBEAT_INTERVAL_MS = 5_000;
 const HEARTBEAT_TIMEOUT_MS = 15_000;
@@ -127,7 +128,7 @@ export function usePeerRoom(
       claimTimer = setTimeout(async () => {
         if (disposed || beaconRef.current) return;
         const { default: PeerCtor } = await import("peerjs");
-        const candidate = new PeerCtor(beaconId(roomId));
+        const candidate = new PeerCtor(beaconId(roomId), peerOptions());
         candidate.on("open", () => {
           if (disposed) {
             candidate.destroy();
@@ -292,7 +293,7 @@ export function usePeerRoom(
       if (disposed) return;
       setStatus("connecting");
 
-      const self = new PeerCtor(meshId(roomId));
+      const self = new PeerCtor(meshId(roomId), peerOptions());
       peerRef.current = self;
 
       // Join path: ask the beacon for the member list, then mesh out.
@@ -322,7 +323,7 @@ export function usePeerRoom(
         setSelfId(id);
 
         if (create) {
-          const beacon = new PeerCtor(beaconId(roomId));
+          const beacon = new PeerCtor(beaconId(roomId), peerOptions());
           beacon.on("open", () => {
             if (disposed) return;
             beaconRef.current = beacon;

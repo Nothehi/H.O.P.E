@@ -42,6 +42,17 @@ jobs:
       - name: Build static export
         env:
           NEXT_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          # PeerJS signaling + ICE config (all optional; see .env.example).
+          # Non-secret values live in repo Variables, TURN creds in Secrets.
+          NEXT_PUBLIC_PEER_HOST: ${{ vars.PEER_HOST }}
+          NEXT_PUBLIC_PEER_PORT: ${{ vars.PEER_PORT }}
+          NEXT_PUBLIC_PEER_PATH: ${{ vars.PEER_PATH }}
+          NEXT_PUBLIC_PEER_SECURE: ${{ vars.PEER_SECURE }}
+          NEXT_PUBLIC_PEER_KEY: ${{ vars.PEER_KEY }}
+          NEXT_PUBLIC_STUN_URLS: ${{ vars.STUN_URLS }}
+          NEXT_PUBLIC_TURN_URLS: ${{ vars.TURN_URLS }}
+          NEXT_PUBLIC_TURN_USERNAME: ${{ secrets.TURN_USERNAME }}
+          NEXT_PUBLIC_TURN_CREDENTIAL: ${{ secrets.TURN_CREDENTIAL }}
         run: pnpm build
 
       - name: Upload Pages artifact
