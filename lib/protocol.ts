@@ -1,5 +1,5 @@
 /**
- * Wire protocol for walkie-talkie rooms.
+ * Wire protocol for H.O.P.E. rooms.
  *
  * Rooms are a host-based mesh on top of PeerJS:
  * - One member owns the room "beacon" peer (a well-known PeerJS id derived
