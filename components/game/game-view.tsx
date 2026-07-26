@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Check,
@@ -126,6 +126,9 @@ export function GameView({
   const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [showSide, setShowSide] = useState(false);
+  const [sideTab, setSideTab] = useState("crew");
+  // How many messages have been seen; the Comms tab being open marks all read.
+  const [readCount, setReadCount] = useState(0);
 
   const onEvent = useCallback((event: RoomEvent) => {
     switch (event.kind) {
@@ -146,6 +149,21 @@ export function GameView({
 
   const { status, error, selfId, isHost, members, messages, sendChat, game, dispatch } =
     useGame(roomId, displayName, create, onEvent);
+
+  // While the Comms tab is open, everything is read; otherwise incoming
+  // messages from other players pile up as unread.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (sideTab === "comms") setReadCount(messages.length);
+  }, [sideTab, messages.length]);
+
+  const unreadCount =
+    sideTab === "comms"
+      ? 0
+      : messages.reduce(
+          (n, m, i) => (i >= readCount && !m.own ? n + 1 : n),
+          0,
+        );
 
   const copyRoomId = async () => {
     await navigator.clipboard.writeText(roomId);
@@ -181,13 +199,22 @@ export function GameView({
       : null;
 
   const sidebar = game && (
-    <Tabs defaultValue="crew" className="flex h-full min-h-0 flex-col">
+    <Tabs
+      value={sideTab}
+      onValueChange={setSideTab}
+      className="flex h-full min-h-0 flex-col"
+    >
       <TabsList className="mx-2 mt-2">
         <TabsTrigger value="crew" className="flex-1">
           Crew
         </TabsTrigger>
-        <TabsTrigger value="comms" className="flex-1">
+        <TabsTrigger value="comms" className="flex-1 gap-1.5">
           Comms
+          {unreadCount > 0 && (
+            <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground tabular-nums">
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )}
         </TabsTrigger>
       </TabsList>
       <TabsContent value="crew" className="min-h-0 flex-1">
@@ -234,11 +261,17 @@ export function GameView({
           <Button
             variant="outline"
             size="sm"
-            className="lg:hidden"
+            className="relative lg:hidden"
             onClick={() => setShowSide((v) => !v)}
           >
             <Users className="size-4" />
             {members.filter((m) => m.status === "connected").length}
+            {unreadCount > 0 && (
+              <span
+                className="absolute -right-1 -top-1 size-2.5 rounded-full bg-primary ring-2 ring-background"
+                aria-label={`${unreadCount} unread messages`}
+              />
+            )}
           </Button>
           <Button variant="ghost" size="sm" onClick={leave}>
             <LogOut className="size-4" />
