@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-mono);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-geist-mono);
+  --font-sans: var(--font-mono);
+  --font-mono: var(--font-mono);
+  --font-heading: var(--font-heading);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,56 +49,84 @@
 }
 
 /*
- * Tactical ops theme: dark-only monochrome console with an amber warning
- * accent. Radius is 0 everywhere — panels are hard-edged like the
- * surveillance-dashboard reference.
+ * Cyberpunk Arcade theme: Dark navy backdrop, Neon Green main text, 
+ * Electric Purple accents. Glassmorphism cards.
  */
 :root,
 .dark {
-  --background: oklch(0.15 0 0);
-  --foreground: oklch(0.93 0 0);
-  --card: oklch(0.18 0 0);
-  --card-foreground: oklch(0.93 0 0);
-  --popover: oklch(0.18 0 0);
-  --popover-foreground: oklch(0.93 0 0);
-  --primary: oklch(0.93 0 0);
-  --primary-foreground: oklch(0.16 0 0);
-  --secondary: oklch(0.26 0 0);
-  --secondary-foreground: oklch(0.93 0 0);
-  --muted: oklch(0.24 0 0);
-  --muted-foreground: oklch(0.66 0 0);
-  --accent: oklch(0.26 0 0);
-  --accent-foreground: oklch(0.93 0 0);
-  --destructive: oklch(0.64 0.2 25);
-  --border: oklch(1 0 0 / 14%);
-  --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.6 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.66 0 0);
-  --chart-3: oklch(0.5 0 0);
-  --chart-4: oklch(0.38 0 0);
-  --chart-5: oklch(0.28 0 0);
-  --radius: 0px;
-  --sidebar: oklch(0.18 0 0);
-  --sidebar-foreground: oklch(0.93 0 0);
-  --sidebar-primary: oklch(0.93 0 0);
-  --sidebar-primary-foreground: oklch(0.16 0 0);
-  --sidebar-accent: oklch(0.26 0 0);
-  --sidebar-accent-foreground: oklch(0.93 0 0);
-  --sidebar-border: oklch(1 0 0 / 14%);
-  --sidebar-ring: oklch(0.6 0 0);
+  --background: #0D0F1A;
+  --foreground: #39FF14;
+  --card: rgba(13, 15, 26, 0.65);
+  --card-foreground: #39FF14;
+  --popover: #0D0F1A;
+  --popover-foreground: #39FF14;
+  --primary: #39FF14;
+  --primary-foreground: #0D0F1A;
+  --secondary: rgba(139, 92, 246, 0.15);
+  --secondary-foreground: #8B5CF6;
+  --muted: rgba(57, 255, 20, 0.1);
+  --muted-foreground: rgba(57, 255, 20, 0.8);
+  --accent: #8B5CF6;
+  --accent-foreground: #ffffff;
+  --destructive: #FF0055;
+  --border: rgba(139, 92, 246, 0.4);
+  --input: rgba(139, 92, 246, 0.4);
+  --ring: #39FF14;
+  --chart-1: #39FF14;
+  --chart-2: #8B5CF6;
+  --chart-3: #00F0FF;
+  --chart-4: #FF00E5;
+  --chart-5: #FFD700;
+  --radius: 0.5rem;
+  --sidebar: rgba(13, 15, 26, 0.9);
+  --sidebar-foreground: #39FF14;
+  --sidebar-primary: #39FF14;
+  --sidebar-primary-foreground: #0D0F1A;
+  --sidebar-accent: rgba(139, 92, 246, 0.2);
+  --sidebar-accent-foreground: #8B5CF6;
+  --sidebar-border: rgba(139, 92, 246, 0.3);
+  --sidebar-ring: #39FF14;
 }
 
-/* Floating corner brackets, like the target-frame panels in the reference. */
+/* CRT Scanline and vignette */
+body::after {
+  content: "";
+  display: block;
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+  z-index: 999;
+  background-size: 100% 4px;
+  pointer-events: none;
+  opacity: 0.2;
+}
+
+body::before {
+  content: "";
+  display: block;
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.5) 150%);
+  z-index: 998;
+  pointer-events: none;
+}
+
+/* Cyberpunk Neon Purple/Green frame corners */
 @utility frame-corners {
   position: relative;
-
+  border-radius: var(--radius);
+  background: rgba(13, 15, 26, 0.65);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  
   &::after {
-    --fc: oklch(0.93 0 0 / 50%);
+    --fc: #8B5CF6;
     content: "";
     position: absolute;
-    inset: -5px;
+    inset: -3px;
     pointer-events: none;
+    border-radius: calc(var(--radius) + 3px);
     background-image: linear-gradient(var(--fc), var(--fc)),
       linear-gradient(var(--fc), var(--fc)),
       linear-gradient(var(--fc), var(--fc)),
@@ -109,14 +137,14 @@
       linear-gradient(var(--fc), var(--fc));
     background-repeat: no-repeat;
     background-size:
-      12px 1px,
-      1px 12px,
-      12px 1px,
-      1px 12px,
-      12px 1px,
-      1px 12px,
-      12px 1px,
-      1px 12px;
+      16px 2px,
+      2px 16px,
+      16px 2px,
+      2px 16px,
+      16px 2px,
+      2px 16px,
+      16px 2px,
+      2px 16px;
     background-position:
       top left,
       top left,
@@ -126,6 +154,7 @@
       bottom left,
       bottom right,
       bottom right;
+    opacity: 0.8;
   }
 }
 
@@ -135,14 +164,17 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* Faint dot grid, standing in for the reference's dark map backdrop. */
-    background-image: radial-gradient(
-      oklch(1 0 0 / 0.045) 1px,
-      transparent 1px
-    );
-    background-size: 24px 24px;
+    background-image: 
+      linear-gradient(rgba(139, 92, 246, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 92, 246, 0.05) 1px, transparent 1px);
+    background-size: 32px 32px;
+    text-shadow: 0 0 2px rgba(57, 255, 20, 0.4);
   }
   html {
-    @apply font-sans;
+    @apply font-mono;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading tracking-widest text-primary;
+    text-shadow: 0 0 8px rgba(57, 255, 20, 0.6);
   }
 }
