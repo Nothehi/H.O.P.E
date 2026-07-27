@@ -22,37 +22,36 @@ export function Lobby({
   const hasTechnician = game.seats.some((s) => s.role === "technician");
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 py-4">
+    <div className="mx-auto max-w-2xl space-y-6 py-4" dir="rtl">
       <div className="space-y-1 text-center">
-        <h2 className="text-lg font-bold uppercase tracking-[0.2em]">
-          Voyage {chronicle.voyage + 1} — Crew Muster
+        <h2 className="text-xl font-black uppercase tracking-[0.2em] text-primary">
+          سفر اکشافی شماره {chronicle.voyage + 1} — تجمیع و آمادگی خدمه
         </h2>
         <p className="text-sm text-muted-foreground">
-          Choose your department. There are no personas here — you play as
-          yourself, and the ledger remembers real names.
+          بخش و مسئولیت تخصصی خود را انتخاب کنید. نقش‌های فرضی وجود ندارد — شما با نام واقعی خود بازی می‌کنید و دفترچه سفینه آن را ثبت می‌کند.
         </p>
       </div>
 
       {chronicle.voyage > 0 && (
-        <div className="space-y-2 rounded-xl border bg-muted/30 p-4 text-sm">
-          <div className="flex items-center gap-2 font-semibold">
+        <div className="space-y-2 rounded-none border border-border bg-card p-4 text-sm">
+          <div className="flex items-center gap-2 font-bold text-primary">
             <ScrollText className="size-4" />
-            The Chronicle so far
+            تاریخچه دفترچه سفینه تا این لحظه
           </div>
           <p className="text-muted-foreground">
-            {chronicle.voyage} voyage{chronicle.voyage > 1 ? "s" : ""} logged ·{" "}
-            {chronicle.ledger.length} ledger signatures ·{" "}
-            {chronicle.stickers.length} permanent stickers ·{" "}
-            {chronicle.envelopesOpened.length} envelopes torn open ·{" "}
-            {chronicle.retiredCards.length} dilemmas resolved forever
+            {chronicle.voyage} سفر قبلی ثبت شده ·{" "}
+            {chronicle.ledger.length} امضا در دفترچه ·{" "}
+            {chronicle.stickers.length} برچسب وضعیت دائمی ·{" "}
+            {chronicle.envelopesOpened.length} پاکت محرمانه باز شده ·{" "}
+            {chronicle.retiredCards.length} بحران برای همیشه حل گشته
           </p>
           {chronicle.heroHistory.length > 0 && (
             <p className="flex items-center gap-1.5 text-muted-foreground">
               <Trophy className="size-3.5 text-amber-500" />
-              Heroes of the Ship:{" "}
+              قهرمانان ماندگار سفینه:{" "}
               {chronicle.heroHistory
-                .map((h) => `${h.name} (V${h.voyage})`)
-                .join(", ")}
+                .map((h) => `${h.name} (سفر ${h.voyage})`)
+                .join("، ")}
             </p>
           )}
         </div>
@@ -71,19 +70,19 @@ export function Lobby({
                 mySeat && dispatch({ type: "choose-role", role: mine ? null : role })
               }
               disabled={!mySeat || (!!takenBy && !mine)}
-              className={`flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-colors ${
+              className={`flex flex-col items-center gap-1.5 rounded-none border p-3 text-center transition-all ${
                 mine
-                  ? "border-primary bg-primary/10"
+                  ? "border-primary bg-primary/10 text-primary font-bold shadow-[0_0_10px_rgba(252,238,10,0.2)]"
                   : takenBy
-                    ? "cursor-not-allowed opacity-50"
-                    : "hover:bg-muted"
+                    ? "cursor-not-allowed opacity-40 border-border bg-muted/20"
+                    : "hover:bg-secondary hover:border-secondary-foreground"
               }`}
               title={meta.blurb}
             >
               <Icon className="size-5" />
-              <span className="text-xs font-semibold">{meta.label}</span>
+              <span className="text-xs font-bold">{meta.label}</span>
               <span className="min-h-4 text-[10px] text-muted-foreground">
-                {takenBy ? takenBy.name : "open"}
+                {takenBy ? takenBy.name : "آزاد / انتخاب نشده"}
               </span>
             </button>
           );
@@ -91,31 +90,30 @@ export function Lobby({
       </div>
 
       {mySeat?.role && (
-        <p className="text-center text-xs text-muted-foreground">
-          {ROLE_META[mySeat.role].blurb}
+        <p className="text-center text-xs font-semibold text-secondary-foreground bg-secondary/30 p-2 border border-secondary-foreground/30">
+          وظیفه {ROLE_META[mySeat.role].label}: {ROLE_META[mySeat.role].blurb}
         </p>
       )}
 
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center gap-2 pt-2">
         <Button
           size="lg"
           disabled={!mySeat || game.seats.length === 0}
           onClick={() => dispatch({ type: "start-game" })}
         >
-          <Play className="size-4" />
-          Begin Voyage {chronicle.voyage + 1}
+          <Play className="size-4 ml-1" />
+          آغاز سفر اکشافی شماره {chronicle.voyage + 1}
         </Button>
         {!everyoneAssigned && (
-          <Badge variant="secondary">waiting on department picks</Badge>
+          <Badge variant="secondary">منتظر انتخاب مسئولیت توسط تمام خدمه</Badge>
         )}
         {!hasTechnician && (
-          <p className="text-xs text-amber-600 dark:text-amber-400">
-            No Technician aboard — nobody will be able to peek at hidden
-            consequences. The crew flies blind.
+          <p className="text-xs text-amber-500 font-semibold">
+            هشدار: هیچ تکنسینی در سفینه نیست — کسی قادر به هک و دیدن عواقب پنهان نخواهد بود!
           </p>
         )}
         <p className="text-xs text-muted-foreground">
-          {game.seats.length} crew seated · 3–8 players recommended
+          {game.seats.length} نفر خدمه حاضر · تعداد پیشنهادی: ۳ تا ۸ نفر
         </p>
       </div>
     </div>

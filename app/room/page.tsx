@@ -35,14 +35,14 @@ function RoomGate({ roomId }: { roomId: string }) {
 
   if (!isValidRoomId(roomId)) {
     return (
-      <main className="flex flex-1 items-center justify-center p-4">
+      <main className="flex flex-1 items-center justify-center p-4" dir="rtl">
         <Card className="w-full max-w-md text-center">
           <CardHeader>
-            <CardTitle>Invalid room ID</CardTitle>
-            <CardDescription>“{roomId}” is not a valid room ID.</CardDescription>
+            <CardTitle className="text-destructive">شناسه سفینه نامعتبر است</CardTitle>
+            <CardDescription>«{roomId}» یک کد معتبر برای سفینه نیست.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => router.push("/")}>Back home</Button>
+            <Button onClick={() => router.push("/")}>بازگشت به صفحه اصلی</Button>
           </CardContent>
         </Card>
       </main>
@@ -55,32 +55,31 @@ function RoomGate({ roomId }: { roomId: string }) {
     const submit = () => {
       const trimmed = nameInput.trim();
       if (!trimmed) {
-        toast.error("Pick a display name first.");
+        toast.error("لطفاً نام نمایشی خود را وارد کنید.");
         return;
       }
       sessionStorage.setItem("wt-name", trimmed);
       setName(trimmed);
     };
     return (
-      <main className="flex flex-1 items-center justify-center bg-muted/40 p-4">
+      <main className="flex flex-1 items-center justify-center p-4" dir="rtl">
         <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Boarding ship {roomId}</CardTitle>
+          <CardHeader className="text-right">
+            <CardTitle>ورود به سفینه {roomId}</CardTitle>
             <CardDescription>
-              Sign the crew manifest with your real name — the ledger will
-              remember it.
+              دفترچه اصلی سفینه نام شما را به عنوان خدمه ثبت خواهد کرد.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex gap-2">
             <Input
               autoFocus
-              placeholder="Display name"
+              placeholder="نام نمایشی"
               value={nameInput}
               maxLength={32}
               onChange={(e) => setNameInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submit()}
             />
-            <Button onClick={submit}>Continue</Button>
+            <Button onClick={submit}>ادامه و ورود</Button>
           </CardContent>
         </Card>
       </main>

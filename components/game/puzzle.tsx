@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronRight, KeyRound, Lightbulb, ShieldAlert } from "lucide-react";
+import { ChevronRight, Cpu, KeyRound, Lightbulb, ShieldAlert, Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -30,7 +30,6 @@ export function PuzzlePanel({
   const padRef = useRef<HTMLTextAreaElement>(null);
   const padTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Merge in remote scratchpad edits unless we're the one typing.
   useEffect(() => {
     if (document.activeElement !== padRef.current) {
       setPad(puzzle?.scratchpad ?? "");
@@ -55,39 +54,51 @@ export function PuzzlePanel({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="frame-corners space-y-3 rounded-xl border border-red-500/40 bg-red-500/5 p-5">
-        <div className="flex items-center gap-2">
-          <ShieldAlert className="size-5 text-red-500" />
-          <h3 className="text-lg font-bold">{def.title}</h3>
-          <Badge variant="secondary" className="ml-auto">
-            {def.zone}
+    <div className="space-y-5" dir="rtl">
+      {/* Cyberpunk Hacking Header */}
+      <div className="frame-corners space-y-4 rounded-none border border-destructive/80 bg-card p-5 shadow-2xl">
+        <div className="flex flex-wrap items-center gap-2 border-b border-border/60 pb-3">
+          <ShieldAlert className="size-5 text-destructive animate-pulse" />
+          <h3 className="text-lg font-black uppercase text-primary tracking-wider">
+            {def.title} — قفل امنیتی سیستم
+          </h3>
+          <Badge variant="secondary" className="mr-auto font-mono text-secondary-foreground">
+            بخش: {def.zone}
           </Badge>
         </div>
-        <p className="text-sm leading-relaxed text-muted-foreground">
+
+        {/* Cyberpunk Matrix Buffer Graphic */}
+        <div className="font-mono text-[11px] text-muted-foreground flex items-center gap-2 bg-background/80 p-2 border border-border">
+          <Cpu className="size-4 text-secondary-foreground shrink-0" />
+          <span className="truncate">BREACH_SEQUENCE: 7A · 1C · BD · 55 · E9 · 1C · EF</span>
+        </div>
+
+        <p className="text-sm leading-relaxed text-foreground/90 font-mono">
           {def.prompt}
         </p>
-        <div className="flex items-center gap-2 text-sm">
-          <Badge variant={attemptsLeft <= 2 ? "destructive" : "outline"}>
-            {attemptsLeft} attempt{attemptsLeft === 1 ? "" : "s"} left
+
+        <div className="flex items-center gap-3 pt-1">
+          <Badge variant={attemptsLeft <= 2 ? "destructive" : "outline"} className="font-mono font-bold">
+            فرصت‌های باقی‌مانده: {attemptsLeft} از {def.maxAttempts}
           </Badge>
           {puzzle.lastGuess && !puzzle.solved && (
-            <span className="font-mono text-xs text-red-500">
-              REJECTED: {puzzle.lastGuess}
+            <span className="font-mono text-xs text-destructive font-bold">
+              [رد شد]: {puzzle.lastGuess}
             </span>
           )}
         </div>
       </div>
 
+      {/* Technician Clues / Personal Fragments */}
       {myClues.length > 0 && !done && (
-        <div className="space-y-2 rounded-xl border border-amber-500/40 bg-amber-500/5 p-4">
-          <div className="flex items-center gap-2 text-sm font-semibold text-amber-600 dark:text-amber-400">
+        <div className="space-y-2 rounded-none border border-primary/50 bg-primary/10 p-4">
+          <div className="flex items-center gap-2 text-sm font-bold text-primary">
             <Lightbulb className="size-4" />
-            Your fragments — only you hold these. Share them aloud.
+            قطعه‌کد رمزنگاری‌شده شما — این سرنخ را فقط شما دارید:
           </div>
           {myClues.map((id) => (
-            <p key={id} className="text-sm italic">
-              “{CLUES[id].text}”
+            <p key={id} className="text-sm font-mono text-foreground font-semibold bg-background/60 p-2 border border-primary/30">
+              « {CLUES[id].text} »
             </p>
           ))}
         </div>
@@ -95,55 +106,68 @@ export function PuzzlePanel({
 
       {!done && (
         <>
+          {/* Shared Team Terminal / Scratchpad */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              Shared scratchpad — everyone writes here
+            <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-secondary-foreground">
+              <Terminal className="size-4" />
+              کنسول داده‌های مشترک خدمه (پایگاه یادداشت همزمان)
             </label>
             <Textarea
               ref={padRef}
               value={pad}
               onChange={(e) => editPad(e.target.value)}
               onBlur={() => dispatch({ type: "scratchpad", text: pad })}
-              placeholder="Pool your clues, test hypotheses…"
-              className="min-h-28 font-mono text-sm"
+              placeholder="root@hope-os:~$ سرنخ‌های خود را مابین خدمه ترکیب کنید و فرضیات را بنویسید..."
+              className="min-h-32 font-mono text-sm border-secondary-foreground/40 bg-input focus-visible:border-secondary-foreground"
               disabled={!mySeat}
             />
           </div>
 
-          <div className="flex gap-2">
-            <Input
-              value={guess}
-              onChange={(e) => setGuess(e.target.value)}
-              placeholder={def.placeholder}
-              className="font-mono uppercase"
-              disabled={!mySeat}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && guess.trim()) {
+          {/* Interactive Decryption Console / Command Line */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-wider text-primary">
+              ورودی کنسول رمزگشایی (کد نهایی):
+            </label>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <span className="absolute right-3 top-2.5 font-mono text-xs text-muted-foreground select-none">
+                  #&gt;
+                </span>
+                <Input
+                  value={guess}
+                  onChange={(e) => setGuess(e.target.value)}
+                  placeholder={def.placeholder || "وارد کردن پین یا کد..."}
+                  className="font-mono uppercase pr-8"
+                  disabled={!mySeat}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && guess.trim()) {
+                      dispatch({ type: "guess", guess });
+                      setGuess("");
+                    }
+                  }}
+                />
+              </div>
+              <Button
+                disabled={!mySeat || !guess.trim()}
+                onClick={() => {
                   dispatch({ type: "guess", guess });
                   setGuess("");
-                }
-              }}
-            />
-            <Button
-              disabled={!mySeat || !guess.trim()}
-              onClick={() => {
-                dispatch({ type: "guess", guess });
-                setGuess("");
-              }}
-            >
-              <KeyRound className="size-4" />
-              Try it
-            </Button>
+                }}
+              >
+                <KeyRound className="size-4 ml-1" />
+                تست و اجرای کد
+              </Button>
+            </div>
           </div>
 
           {iModerate && (
             <Button
               variant="outline"
               size="sm"
-              className="w-full text-destructive"
+              className="w-full text-destructive border-destructive/50 hover:bg-destructive/10"
               onClick={() => dispatch({ type: "bypass" })}
             >
-              Force bypass (permanent damage)
+              دور زدن اضطراری قفل (صدمه دائمی به بدنه)
             </Button>
           )}
         </>
@@ -152,14 +176,20 @@ export function PuzzlePanel({
       {done && (
         <div className="space-y-4">
           {puzzle.solved ? (
-            <p className="text-center text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-              ACCESS GRANTED — {puzzle.solvedBy} cracked the code:{" "}
-              <span className="font-mono">{def.answer}</span>
-            </p>
+            <div className="p-4 border border-emerald-500 bg-emerald-500/10 text-center space-y-1">
+              <p className="text-base font-bold text-emerald-400">
+                ✓ دسترسی تایید شد — {puzzle.solvedBy} کد را شکست:
+              </p>
+              <p className="font-mono text-xl font-black tracking-widest text-emerald-400">
+                {def.answer}
+              </p>
+            </div>
           ) : (
-            <p className="text-center text-sm font-semibold text-red-500">
-              The lock was never solved. The ship remembers.
-            </p>
+            <div className="p-4 border border-destructive bg-destructive/10 text-center">
+              <p className="text-sm font-bold text-destructive">
+                ✖ قفل باز نشد. آسیب دائمی به سیستم سفینه وارد گشت.
+              </p>
+            </div>
           )}
           {game.lastResolution?.notes.map((n, i) => (
             <p key={i} className="text-center text-xs text-muted-foreground">
@@ -174,12 +204,12 @@ export function PuzzlePanel({
               className="w-full"
               onClick={() => dispatch({ type: "continue" })}
             >
-              <ChevronRight className="size-4" />
-              Continue to round {game.round + 1}
+              <ChevronRight className="size-4 ml-1" />
+              ادامه به دور {game.round + 1}
             </Button>
           ) : (
             <p className="text-center text-sm text-muted-foreground">
-              The Officer of the Watch will advance the round.
+              افسر کشیک دور جدید را آغاز خواهد کرد.
             </p>
           )}
         </div>

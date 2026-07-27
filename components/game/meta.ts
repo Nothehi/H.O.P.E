@@ -22,44 +22,44 @@ export const ROLE_META: Record<
   { label: string; icon: LucideIcon; blurb: string }
 > = {
   commander: {
-    label: "Commander",
+    label: "فرمانده",
     icon: Crown,
-    blurb: "The face of every decision — and every consequence.",
+    blurb: "چهره اصلی تمامی تصمیمات حیاتی و پذیرنده عواقب آن.",
   },
   engineer: {
-    label: "Engineer",
+    label: "مهندس",
     icon: Wrench,
-    blurb: "Keeps the hull between the crew and the void.",
+    blurb: "نگهبان بدنه سفینه و محافظ خدمه در برابر خلاء مرگبار فضا.",
   },
   medic: {
-    label: "Medic",
+    label: "پزشک",
     icon: Stethoscope,
-    blurb: "Decides who gets treated — and who waits.",
+    blurb: "تصمیم‌گیرنده درمان خدمه — تعیین‌کننده اولویت حیات و مرگ.",
   },
   soldier: {
-    label: "Soldier",
+    label: "سرباز",
     icon: Crosshair,
-    blurb: "Order, at a price someone else pays.",
+    blurb: "برقرارکننده نظم سفینه به هر قیمت، حتی اگر دیگران تاوانش را بدهند.",
   },
   technician: {
-    label: "Technician",
+    label: "تکنسین",
     icon: Cpu,
-    blurb: "The only one allowed to peek at hidden consequences. Truth optional.",
+    blurb: "تنها کسی که می‌تواند عواقب پنهان را هک و رمزگشایی کند.",
   },
   psychologist: {
-    label: "Psychologist",
+    label: "روان‌پزشک",
     icon: Brain,
-    blurb: "Hears what the crew won't say on the record.",
+    blurb: "شنونده رازها و حرف‌های ناگفته خدمه که در دفترچه ثبت نمی‌شوند.",
   },
   pilot: {
-    label: "Pilot",
+    label: "خلبان",
     icon: Rocket,
-    blurb: "Thinks in burn windows and points of no return.",
+    blurb: "محاسبه‌گر مانورهای بی‌بازگشت و مسیرهای ناوبری سفینه.",
   },
   scientist: {
-    label: "Scientist",
+    label: "دانشمند",
     icon: FlaskConical,
-    blurb: "Runs the numbers nobody wants to hear.",
+    blurb: "تحلیل‌گر آمار و ارقامی که هیچ‌کس مایل به شنیدنشان نیست.",
   },
 };
 
@@ -68,22 +68,22 @@ export const RESOURCE_META: Record<
   { label: string; icon: LucideIcon; textClass: string }
 > = {
   oxygen: {
-    label: "Oxygen",
+    label: "اکسیژن",
     icon: Wind,
     textClass: "text-sky-400",
   },
   hull: {
-    label: "Hull",
+    label: "بدنه",
     icon: Shield,
     textClass: "text-amber-400",
   },
   morale: {
-    label: "Morale",
+    label: "روحیه",
     icon: Heart,
     textClass: "text-rose-400",
   },
   bond: {
-    label: "Bond",
+    label: "همبستگی",
     icon: Sparkles,
     textClass: "text-violet-400",
   },

@@ -32,22 +32,22 @@ export function EffectsList({ effects }: { effects: CardEffects }) {
         return (
           <Badge key={k} variant="outline" className="gap-1 font-mono">
             <Icon className={`size-3 ${meta.textClass}`} />
-            {fmtDelta(v)}
+            {meta.label}: {fmtDelta(v)}
           </Badge>
         );
       })}
       {effects.sticker && (
         <Badge variant="outline" className="gap-1">
-          sticker: {effects.sticker.label}
+          برچسب: {effects.sticker.label}
         </Badge>
       )}
       {effects.envelope && (
         <Badge variant="outline" className="gap-1">
-          <Mail className="size-3" /> opens a sealed envelope
+          <Mail className="size-3" /> باز کردن پاکت محرمانه
         </Badge>
       )}
       {!keys.some((k) => effects[k]) && !effects.sticker && !effects.envelope && (
-        <span className="text-xs text-muted-foreground">no direct effects</span>
+        <span className="text-xs text-muted-foreground">بدون تاثیر مستقیم</span>
       )}
     </div>
   );
@@ -57,8 +57,8 @@ export function EnvelopeReveal({ envelopeId }: { envelopeId: string }) {
   const env = ENVELOPES[envelopeId];
   if (!env) return null;
   return (
-    <div className="space-y-2 rounded-xl border border-dashed border-amber-500/60 bg-amber-500/5 p-4">
-      <div className="flex items-center gap-2 font-semibold text-amber-600 dark:text-amber-400">
+    <div className="space-y-2 rounded-none border border-dashed border-amber-500/60 bg-amber-500/5 p-4" dir="rtl">
+      <div className="flex items-center gap-2 font-bold text-amber-500">
         <Mail className="size-4" />
         {env.title}
       </div>
@@ -71,28 +71,28 @@ function CardFace({ cardId }: { cardId: string }) {
   const card = CARDS[cardId];
   if (!card) return null;
   return (
-    <div className="frame-corners space-y-3 rounded-xl border bg-card p-5">
+    <div className="frame-corners space-y-3 rounded-none border bg-card p-5" dir="rtl">
       <div className="flex items-center gap-2">
-        <h3 className="text-lg font-bold">{card.title}</h3>
-        <Badge variant="secondary" className="ml-auto">
-          {card.zone}
+        <h3 className="text-lg font-black text-primary">{card.title}</h3>
+        <Badge variant="secondary" className="mr-auto font-bold">
+          بخش: {card.zone}
         </Badge>
       </div>
-      <p className="text-sm leading-relaxed text-muted-foreground">
+      <p className="text-sm leading-relaxed text-foreground/90">
         {card.narrative}
       </p>
-      <div className="grid gap-2 sm:grid-cols-2">
-        <div className="rounded-lg border bg-muted/30 p-3">
-          <span className="font-mono text-xs font-bold text-primary">
-            OPTION A
+      <div className="grid gap-3 sm:grid-cols-2 pt-1">
+        <div className="rounded-none border border-border/80 bg-muted/40 p-3">
+          <span className="font-mono text-xs font-black text-primary">
+            گزینه الف (OPTION A)
           </span>
-          <p className="mt-1 text-sm">{card.optionA}</p>
+          <p className="mt-1 text-sm font-semibold">{card.optionA}</p>
         </div>
-        <div className="rounded-lg border bg-muted/30 p-3">
-          <span className="font-mono text-xs font-bold text-primary">
-            OPTION B
+        <div className="rounded-none border border-border/80 bg-muted/40 p-3">
+          <span className="font-mono text-xs font-black text-secondary-foreground">
+            گزینه ب (OPTION B)
           </span>
-          <p className="mt-1 text-sm">{card.optionB}</p>
+          <p className="mt-1 text-sm font-semibold">{card.optionB}</p>
         </div>
       </div>
     </div>
@@ -114,8 +114,6 @@ export function DilemmaPanel({
   const iModerate = iAmOfficer || (officer && !officer.connected && !!mySeat);
   const card = game.currentCardId ? CARDS[game.currentCardId] : null;
 
-  // The panel is keyed by currentCardId in GameView, so this local bid form
-  // state resets automatically each round.
   const myBid = selfId ? game.bids[selfId] : undefined;
   const [choice, setChoice] = useState<"A" | "B" | "pass">("pass");
   const [tokens, setTokens] = useState(0);
@@ -128,28 +126,28 @@ export function DilemmaPanel({
   /* --------------------------- reveal ---------------------------- */
   if (game.phase === "reveal") {
     return (
-      <div className="flex flex-col items-center gap-4 py-10 text-center">
-        <div className="frame-corners flex h-40 w-28 items-center justify-center border bg-card">
-          <span className="font-mono text-2xl font-black tracking-widest text-primary">
+      <div className="flex flex-col items-center gap-4 py-10 text-center" dir="rtl">
+        <div className="frame-corners flex h-40 w-32 items-center justify-center border bg-card shadow-xl">
+          <span className="font-mono text-3xl font-black tracking-widest text-primary drop-shadow-[0_0_8px_rgba(252,238,10,0.4)]">
             H.O.P.E.
           </span>
         </div>
         <p className="text-sm text-muted-foreground">
-          Round {game.round} · {game.deck.length} cards left in the Dilemma deck
+          دور {game.round} · {game.deck.length} کارت بحران مانده در دسته
           <br />
-          <span className="font-medium text-foreground">
-            {officer?.name ?? "…"}
+          <span className="font-bold text-primary">
+            {officer?.name ?? "..."}
           </span>{" "}
-          holds the watch.
+          مسئولیت کشیک این دور را بر عهده دارد.
         </p>
         {iModerate ? (
           <Button size="lg" onClick={() => dispatch({ type: "draw-card" })}>
-            <ChevronRight className="size-4" />
-            {game.round >= 8 ? "Face the Final Dilemma" : "Draw the crisis card"}
+            <ChevronRight className="size-4 ml-1" />
+            {game.round >= 8 ? "مواجهه با بحران نهایی" : "کشیدن کارت بحران جدید"}
           </Button>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Waiting for the Officer of the Watch to draw…
+            منتظر افسر کشیک برای رو کردن بحران جدید...
           </p>
         )}
       </div>
@@ -162,37 +160,36 @@ export function DilemmaPanel({
   if (game.phase === "peek") {
     const iAmTech = mySeat?.role === "technician";
     return (
-      <div className="space-y-4">
+      <div className="space-y-4" dir="rtl">
         <CardFace cardId={card.id} />
         {iAmTech ? (
-          <div className="space-y-3 rounded-xl border border-emerald-500/50 bg-emerald-500/5 p-4">
-            <div className="flex items-center gap-2 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+          <div className="space-y-3 rounded-none border border-secondary-foreground/60 bg-secondary/30 p-4">
+            <div className="flex items-center gap-2 text-sm font-bold text-secondary-foreground">
               <Eye className="size-4" />
-              Predictive systems — your eyes only. Lie if you like.
+              سیستم‌های پیش‌بینی عواقب — مخصوص چشم‌های تکنسین. می‌توانید حقیقت یا دروغ بگویید!
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <span className="font-mono text-xs font-bold">IF A WINS</span>
+              <div className="space-y-1.5 border border-border p-2 bg-background/50">
+                <span className="font-mono text-xs font-bold text-primary">در صورت پیروزی گزینه الف:</span>
                 <EffectsList effects={card.effectsA} />
               </div>
-              <div className="space-y-1.5">
-                <span className="font-mono text-xs font-bold">IF B WINS</span>
+              <div className="space-y-1.5 border border-border p-2 bg-background/50">
+                <span className="font-mono text-xs font-bold text-secondary-foreground">در صورت پیروزی گزینه ب:</span>
                 <EffectsList effects={card.effectsB} />
               </div>
             </div>
             {card.hiddenLog && (
-              <p className="rounded-md bg-black/80 p-2 font-mono text-xs text-emerald-400">
-                ▸ RECOVERED FRAGMENT: {card.hiddenLog}
+              <p className="p-2 font-mono text-xs text-secondary-foreground bg-background border border-secondary-foreground/40">
+                ▸ قطعه داده بازیابی شده: {card.hiddenLog}
               </p>
             )}
             <Button size="sm" onClick={() => dispatch({ type: "peek-done" })}>
-              Close the console
+              بستن کنسول تکنسین
             </Button>
           </div>
         ) : (
           <p className="py-4 text-center text-sm text-muted-foreground">
-            The Technician is hacking the predictive systems… what they tell you
-            next may or may not be true.
+            تکنسین در حال هک سیستم‌های پیش‌بینی عواقب است... آنچه او به شما می‌گوید ممکن است راست یا دروغ باشد.
           </p>
         )}
       </div>
@@ -202,33 +199,33 @@ export function DilemmaPanel({
   /* --------------------------- debate ---------------------------- */
   if (game.phase === "debate") {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4" dir="rtl">
         <CardFace cardId={card.id} />
-        <div className="space-y-3 rounded-xl border p-4">
+        <div className="space-y-3 rounded-none border border-border bg-card p-4">
           <div className="flex items-center justify-between text-sm">
-            <span className="font-semibold">Cast your Command Tokens</span>
-            <Badge variant="secondary">
-              {lockedCount}/{connected.length} locked
+            <span className="font-bold text-primary">خرج توکن‌های فرماندهی (رای‌گیری)</span>
+            <Badge variant="secondary" className="font-mono">
+              {lockedCount}/{connected.length} رای قفل شده
             </Badge>
           </div>
 
           {!mySeat ? (
             <p className="text-sm text-muted-foreground">
-              You are spectating this voyage.
+              شما تماشاگر این سفر هستید.
             </p>
           ) : myBid?.locked ? (
             <div className="flex items-center gap-3">
-              <Badge className="gap-1">
-                <Lock className="size-3" />
-                bid locked
+              <Badge className="gap-1 bg-primary text-primary-foreground font-bold">
+                <Lock className="size-3 ml-1" />
+                رای شما قفل شد
               </Badge>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => dispatch({ type: "unlock-bid" })}
               >
-                <Unlock className="size-3.5" />
-                Change bid
+                <Unlock className="size-3.5 ml-1" />
+                تغییر رای
               </Button>
             </div>
           ) : (
@@ -242,7 +239,7 @@ export function DilemmaPanel({
                     className="flex-1"
                     onClick={() => setChoice(c)}
                   >
-                    {c === "pass" ? "Pass (+2 tokens)" : `Option ${c}`}
+                    {c === "pass" ? "انصراف (+۲ توکن)" : c === "A" ? "گزینه الف" : "گزینه ب"}
                   </Button>
                 ))}
               </div>
@@ -256,8 +253,8 @@ export function DilemmaPanel({
                     onChange={(e) => setTokens(Number(e.target.value))}
                     className="flex-1 accent-primary"
                   />
-                  <span className="w-16 text-right font-mono text-sm">
-                    {Math.min(tokens, mySeat.tokens)}/{mySeat.tokens}
+                  <span className="w-20 text-left font-mono text-sm font-bold text-primary">
+                    {Math.min(tokens, mySeat.tokens)} / {mySeat.tokens}
                   </span>
                 </div>
               )}
@@ -271,13 +268,12 @@ export function DilemmaPanel({
                   })
                 }
               >
-                <Lock className="size-4" />
-                Lock it in
+                <Lock className="size-4 ml-1" />
+                ثبت و قفل کردن رای
               </Button>
               <p className="text-xs text-muted-foreground">
-                Winners spend their tokens; the losing side is compensated. The
-                heaviest bidder on the winning side signs the ledger — by name,
-                forever.
+                برندگان توکن‌های خود را خرج می‌کنند؛ سمت بازنده غرامت دریافت می‌کند.
+                بیشترین رای‌دهنده در سمت پیروز، دفترچه رسمی سفینه را برای همیشه امضا می‌کند.
               </p>
             </div>
           )}
@@ -287,9 +283,9 @@ export function DilemmaPanel({
               <Badge
                 key={s.playerId}
                 variant={game.bids[s.playerId]?.locked ? "default" : "outline"}
-                className="gap-1"
+                className="gap-1 font-bold"
               >
-                {game.bids[s.playerId]?.locked && <Check className="size-3" />}
+                {game.bids[s.playerId]?.locked && <Check className="size-3 ml-0.5" />}
                 {s.name}
               </Badge>
             ))}
@@ -305,27 +301,26 @@ export function DilemmaPanel({
     const effects = res.effects;
     const chosenText = res.winner === "A" ? card.optionA : card.optionB;
     return (
-      <div className="space-y-4">
+      <div className="space-y-4" dir="rtl">
         <CardFace cardId={card.id} />
-        <div className="space-y-3 rounded-xl border p-4">
+        <div className="space-y-3 rounded-none border border-border bg-card p-4">
           <div className="flex items-center gap-2">
-            <Badge className="font-mono">OPTION {res.winner} WINS</Badge>
+            <Badge className="font-mono font-bold">گزینه {res.winner === "A" ? "الف" : "ب"} پیروز شد</Badge>
             <span className="font-mono text-xs text-muted-foreground">
-              A:{res.tally.A} vs B:{res.tally.B} tokens
+              الف: {res.tally.A} در برابر ب: {res.tally.B} توکن
             </span>
           </div>
-          <p className="text-sm font-medium">{chosenText}</p>
+          <p className="text-sm font-bold text-primary">{chosenText}</p>
           {effects.aftermath && (
-            <p className="text-sm italic text-muted-foreground">
+            <p className="text-sm italic text-muted-foreground bg-muted/30 p-2">
               {effects.aftermath}
             </p>
           )}
           <EffectsList effects={effects} />
           {res.leaderName && (
-            <p className="flex items-center gap-1.5 text-sm">
-              <PenLine className="size-3.5" />
-              <span className="font-semibold">{res.leaderName}</span> signed the
-              ship&apos;s ledger.
+            <p className="flex items-center gap-1.5 text-sm font-semibold">
+              <PenLine className="size-3.5 ml-1 text-primary" />
+              <span className="font-bold text-primary">{res.leaderName}</span> دفترچه رسمی سفینه را امضا نمود.
             </p>
           )}
           {res.notes.map((n, i) => (
@@ -339,12 +334,12 @@ export function DilemmaPanel({
         )}
         {iModerate ? (
           <Button className="w-full" onClick={() => dispatch({ type: "continue" })}>
-            <ChevronRight className="size-4" />
-            Continue to round {game.round + 1}
+            <ChevronRight className="size-4 ml-1" />
+            ادامه به دور {game.round + 1}
           </Button>
         ) : (
           <p className="text-center text-sm text-muted-foreground">
-            The Officer of the Watch will advance the round.
+            افسر کشیک دور را ادامه خواهد داد.
           </p>
         )}
       </div>
