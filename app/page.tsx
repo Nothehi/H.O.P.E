@@ -59,16 +59,23 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-1 items-center justify-center p-4">
-      <Card className="frame-corners w-full max-w-md overflow-visible border">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex size-16 items-center justify-center rounded-sm border border-primary/50 bg-primary/10 shadow-[0_0_15px_rgba(57,255,20,0.3)]">
-            <Image src="/Logo.png" alt="H.O.P.E. Logo" width={48} height={48} className="drop-shadow-[0_0_8px_rgba(57,255,20,0.8)]" />
+    <main className="flex flex-1 items-center justify-center p-4 md:p-8">
+      <Card className="frame-corners w-full max-w-lg border">
+        <CardHeader className="text-center pb-2">
+          <div className="mx-auto mb-4 flex items-center justify-center p-2">
+            <Image
+              src="/Logo.png"
+              alt="H.O.P.E. Logo"
+              width={200}
+              height={200}
+              priority
+              className="h-auto w-48 md:w-56 object-contain drop-shadow-[0_0_15px_rgba(252,238,10,0.35)]"
+            />
           </div>
-          <CardTitle className="text-2xl font-bold uppercase tracking-[0.3em]">
+          <CardTitle className="text-3xl font-black uppercase tracking-[0.3em] text-primary">
             H.O.P.E.
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-sm leading-relaxed text-muted-foreground mt-2">
             A legacy board game for 3–8 crew of a dying generation ship —
             cooperative survival, social deduction, and permanent consequences.
             Peer-to-peer over WebRTC; the campaign Chronicle lives in your

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   Check,
   Copy,
@@ -9,7 +10,6 @@ import {
   Eye,
   Loader2,
   LogOut,
-  Satellite,
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -232,8 +232,8 @@ export function GameView({
 
   return (
     <div className="flex h-dvh flex-col">
-      <header className="flex items-center gap-2 border-b bg-card/60 px-4 py-2.5">
-        <Satellite className="size-5 text-primary" />
+      <header className="flex items-center gap-2 border-b bg-card/80 px-4 py-2.5">
+        <Image src="/Logo.png" alt="H.O.P.E. Logo" width={28} height={28} className="object-contain drop-shadow-[0_0_5px_rgba(252,238,10,0.5)]" />
         <div className="flex min-w-0 items-center gap-2">
           <h1 className="truncate text-sm font-bold uppercase tracking-[0.25em]">
             H.O.P.E.

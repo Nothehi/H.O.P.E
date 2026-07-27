@@ -49,84 +49,63 @@
 }
 
 /*
- * Cyberpunk Arcade theme: Dark navy backdrop, Neon Green main text, 
- * Electric Purple accents. Glassmorphism cards.
+ * Cyberpunk 2077 Theme:
+ * - High readability, dark charcoal background (#0B0E14)
+ * - Cyberpunk Yellow (#FCEE0A) & Cyberpunk Cyan (#00F0FF) accents
+ * - Clean off-white text (#E2E8F0) for zero eye strain
+ * - Sharp geometric framing without boundary overflow
  */
 :root,
 .dark {
-  --background: #0D0F1A;
-  --foreground: #39FF14;
-  --card: rgba(13, 15, 26, 0.65);
-  --card-foreground: #39FF14;
-  --popover: #0D0F1A;
-  --popover-foreground: #39FF14;
-  --primary: #39FF14;
-  --primary-foreground: #0D0F1A;
-  --secondary: rgba(139, 92, 246, 0.15);
-  --secondary-foreground: #8B5CF6;
-  --muted: rgba(57, 255, 20, 0.1);
-  --muted-foreground: rgba(57, 255, 20, 0.8);
-  --accent: #8B5CF6;
-  --accent-foreground: #ffffff;
+  --background: #0B0E14;
+  --foreground: #E2E8F0;
+  --card: #121622;
+  --card-foreground: #E2E8F0;
+  --popover: #121622;
+  --popover-foreground: #E2E8F0;
+  --primary: #FCEE0A;
+  --primary-foreground: #0B0E14;
+  --secondary: #1A202C;
+  --secondary-foreground: #00F0FF;
+  --muted: #181E2A;
+  --muted-foreground: #94A3B8;
+  --accent: #00F0FF;
+  --accent-foreground: #0B0E14;
   --destructive: #FF0055;
-  --border: rgba(139, 92, 246, 0.4);
-  --input: rgba(139, 92, 246, 0.4);
-  --ring: #39FF14;
-  --chart-1: #39FF14;
-  --chart-2: #8B5CF6;
-  --chart-3: #00F0FF;
-  --chart-4: #FF00E5;
-  --chart-5: #FFD700;
-  --radius: 0.5rem;
-  --sidebar: rgba(13, 15, 26, 0.9);
-  --sidebar-foreground: #39FF14;
-  --sidebar-primary: #39FF14;
-  --sidebar-primary-foreground: #0D0F1A;
-  --sidebar-accent: rgba(139, 92, 246, 0.2);
-  --sidebar-accent-foreground: #8B5CF6;
-  --sidebar-border: rgba(139, 92, 246, 0.3);
-  --sidebar-ring: #39FF14;
+  --destructive-foreground: #FFFFFF;
+  --border: #232B3E;
+  --input: #1A202C;
+  --ring: #FCEE0A;
+  --chart-1: #FCEE0A;
+  --chart-2: #00F0FF;
+  --chart-3: #FF0055;
+  --chart-4: #A855F7;
+  --chart-5: #38BDF8;
+  --radius: 0.125rem;
+  --sidebar: #0E121A;
+  --sidebar-foreground: #E2E8F0;
+  --sidebar-primary: #FCEE0A;
+  --sidebar-primary-foreground: #0B0E14;
+  --sidebar-accent: #1A202C;
+  --sidebar-accent-foreground: #00F0FF;
+  --sidebar-border: #232B3E;
+  --sidebar-ring: #FCEE0A;
 }
 
-/* CRT Scanline and vignette */
-body::after {
-  content: "";
-  display: block;
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
-  z-index: 999;
-  background-size: 100% 4px;
-  pointer-events: none;
-  opacity: 0.2;
-}
-
-body::before {
-  content: "";
-  display: block;
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.5) 150%);
-  z-index: 998;
-  pointer-events: none;
-}
-
-/* Cyberpunk Neon Purple/Green frame corners */
+/* Cyberpunk 2077 frame corners (exact framing without overflow) */
 @utility frame-corners {
   position: relative;
   border-radius: var(--radius);
-  background: rgba(13, 15, 26, 0.65);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(139, 92, 246, 0.1);
-  border: 1px solid rgba(139, 92, 246, 0.2);
+  background: var(--card);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
   
   &::after {
-    --fc: #8B5CF6;
+    --fc: #FCEE0A;
     content: "";
     position: absolute;
-    inset: -3px;
+    inset: 0;
     pointer-events: none;
-    border-radius: calc(var(--radius) + 3px);
     background-image: linear-gradient(var(--fc), var(--fc)),
       linear-gradient(var(--fc), var(--fc)),
       linear-gradient(var(--fc), var(--fc)),
@@ -137,14 +116,14 @@ body::before {
       linear-gradient(var(--fc), var(--fc));
     background-repeat: no-repeat;
     background-size:
-      16px 2px,
-      2px 16px,
-      16px 2px,
-      2px 16px,
-      16px 2px,
-      2px 16px,
-      16px 2px,
-      2px 16px;
+      14px 2px,
+      2px 14px,
+      14px 2px,
+      2px 14px,
+      14px 2px,
+      2px 14px,
+      14px 2px,
+      2px 14px;
     background-position:
       top left,
       top left,
@@ -154,7 +133,7 @@ body::before {
       bottom left,
       bottom right,
       bottom right;
-    opacity: 0.8;
+    opacity: 0.9;
   }
 }
 
@@ -165,16 +144,14 @@ body::before {
   body {
     @apply bg-background text-foreground;
     background-image: 
-      linear-gradient(rgba(139, 92, 246, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(139, 92, 246, 0.05) 1px, transparent 1px);
+      linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
     background-size: 32px 32px;
-    text-shadow: 0 0 2px rgba(57, 255, 20, 0.4);
   }
   html {
     @apply font-mono;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading tracking-widest text-primary;
-    text-shadow: 0 0 8px rgba(57, 255, 20, 0.6);
+    @apply font-heading tracking-wider text-primary font-bold;
   }
 }

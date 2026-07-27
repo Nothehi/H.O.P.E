@@ -5,19 +5,20 @@ import { Slot } from "radix-ui"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-sm border border-primary/50 shadow-[0_0_5px_rgba(57,255,20,0.2)] bg-clip-padding text-sm font-medium uppercase tracking-wider whitespace-nowrap transition-all duration-300 outline-none select-none hover:border-primary hover:shadow-[0_0_15px_rgba(57,255,20,0.6)] hover:scale-[1.02] active:scale-95 active:shadow-[0_0_25px_rgba(57,255,20,0.9)] focus-visible:border-ring focus-visible:ring-2 focus-visible:shadow-[0_0_15px_rgba(57,255,20,0.6)] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-none border border-transparent font-mono text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-150 outline-none select-none active:translate-y-0.5 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        default:
+          "bg-primary text-primary-foreground border-primary hover:bg-[#fff733] hover:shadow-[0_0_15px_rgba(252,238,10,0.4)]",
         outline:
-          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "border-primary/70 bg-transparent text-primary hover:bg-primary/15 hover:border-primary",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "bg-secondary text-secondary-foreground border-secondary-foreground/40 hover:bg-secondary/80 hover:border-secondary-foreground",
         ghost:
-          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
+          "hover:bg-secondary hover:text-secondary-foreground",
         destructive:
-          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

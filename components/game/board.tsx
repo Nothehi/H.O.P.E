@@ -41,16 +41,16 @@ function Track({ game, k }: { game: GameState; k: ResourceKey }) {
           <Sticker key={s.id} label={s.label} positive={s.positive} />
         ))}
       </div>
-      <div className="flex h-3 items-stretch gap-[3px]">
+      <div className="flex h-3 items-stretch gap-[2px] overflow-hidden max-w-full">
         {Array.from({ length: max }, (_, i) => (
           <div
             key={i}
-            className={`w-[3px] ${
+            className={`flex-1 min-w-[2px] ${
               i < value
                 ? value <= 3
-                  ? "animate-pulse bg-red-500"
-                  : "bg-foreground"
-                : "bg-foreground/20"
+                  ? "animate-pulse bg-destructive"
+                  : "bg-primary"
+                : "bg-muted"
             }`}
           />
         ))}
@@ -68,8 +68,8 @@ export function ShipBoard({
 }) {
   return (
     <div className="space-y-4">
-      <div className="frame-corners space-y-3 rounded-xl border bg-card p-4">
-        <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+      <div className="frame-corners space-y-3 rounded-none border bg-card p-4">
+        <h3 className="text-xs font-bold uppercase tracking-widest text-primary">
           Vital Systems
         </h3>
         {(["oxygen", "hull", "morale", "bond"] as const).map((k) => (
@@ -77,8 +77,8 @@ export function ShipBoard({
         ))}
       </div>
 
-      <div className="frame-corners rounded-xl border bg-card p-4">
-        <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+      <div className="frame-corners rounded-none border bg-card p-4">
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-primary">
           Ship Zones
         </h3>
         <div className="grid grid-cols-3 gap-1.5">
@@ -89,13 +89,13 @@ export function ShipBoard({
             return (
               <div
                 key={zone}
-                className={`flex min-h-16 flex-col gap-1 rounded-lg border p-2 ${
+                className={`flex min-h-16 flex-col gap-1 rounded-none border p-2 ${
                   zone === activeZone
                     ? "border-primary bg-primary/10"
-                    : "border-dashed bg-muted/30"
+                    : "border-border bg-muted/40"
                 }`}
               >
-                <span className="text-[11px] font-medium text-muted-foreground">
+                <span className="text-[11px] font-medium text-foreground">
                   {zone}
                 </span>
                 {stickers.map((s) => (
