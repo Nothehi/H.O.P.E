@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Satellite, Plus, LogIn } from "lucide-react";
+import Image from "next/image";
+import { Plus, LogIn } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,8 +62,8 @@ export default function Home() {
     <main className="flex flex-1 items-center justify-center p-4">
       <Card className="frame-corners w-full max-w-md overflow-visible border">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex size-12 items-center justify-center border bg-primary text-primary-foreground">
-            <Satellite className="size-6" />
+          <div className="mx-auto mb-2 flex size-16 items-center justify-center rounded-sm border border-primary/50 bg-primary/10 shadow-[0_0_15px_rgba(57,255,20,0.3)]">
+            <Image src="/Logo.png" alt="H.O.P.E. Logo" width={48} height={48} className="drop-shadow-[0_0_8px_rgba(57,255,20,0.8)]" />
           </div>
           <CardTitle className="text-2xl font-bold uppercase tracking-[0.3em]">
             H.O.P.E.
