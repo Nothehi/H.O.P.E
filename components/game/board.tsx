@@ -59,6 +59,18 @@ function Track({ game, k }: { game: GameState; k: ResourceKey }) {
   );
 }
 
+const ZONE_FA: Record<string, string> = {
+  Bridge: "پل فرماندهی",
+  Reactor: "راکتور اصلی",
+  Engineering: "بخش مهندسی",
+  "Life Support": "پشتیبانی حیات",
+  Medbay: "درمانگاه سفینه",
+  "Cargo Bay": "انبار کالا",
+  "Crew Quarters": "استراحتگاه",
+  "AI Core": "هسته هوش مصنوعی",
+  "Pod Bay": "آشیانه کپسول‌ها",
+};
+
 export function ShipBoard({
   game,
   activeZone,
@@ -67,21 +79,21 @@ export function ShipBoard({
   activeZone?: string | null;
 }) {
   return (
-    <div className="space-y-4">
-      <div className="frame-corners space-y-3 rounded-none border bg-card p-4">
+    <div className="space-y-4 max-w-full overflow-hidden" dir="rtl">
+      <div className="frame-corners space-y-3 rounded-none border bg-card p-4 text-right max-w-full overflow-hidden">
         <h3 className="text-xs font-bold uppercase tracking-widest text-primary">
-          Vital Systems
+          سامانه‌های حیاتی سفینه
         </h3>
         {(["oxygen", "hull", "morale", "bond"] as const).map((k) => (
           <Track key={k} game={game} k={k} />
         ))}
       </div>
 
-      <div className="frame-corners rounded-none border bg-card p-4">
+      <div className="frame-corners rounded-none border bg-card p-4 text-right max-w-full overflow-hidden">
         <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-primary">
-          Ship Zones
+          بخش‌ها و مناطق سفینه
         </h3>
-        <div className="grid grid-cols-3 gap-1.5">
+        <div className="grid grid-cols-3 gap-1.5 max-w-full">
           {ZONES.map((zone) => {
             const stickers = game.chronicle.stickers.filter(
               (s) => s.target === zone,
@@ -89,14 +101,14 @@ export function ShipBoard({
             return (
               <div
                 key={zone}
-                className={`flex min-h-16 flex-col gap-1 rounded-none border p-2 ${
+                className={`flex min-h-16 flex-col gap-1 rounded-none border p-1.5 text-right overflow-hidden ${
                   zone === activeZone
-                    ? "border-primary bg-primary/10"
+                    ? "border-primary bg-primary/10 font-bold"
                     : "border-border bg-muted/40"
                 }`}
               >
-                <span className="text-[11px] font-medium text-foreground">
-                  {zone}
+                <span className="text-[11px] font-bold text-foreground leading-tight truncate">
+                  {ZONE_FA[zone] || zone}
                 </span>
                 {stickers.map((s) => (
                   <Sticker key={s.id} label={s.label} positive={s.positive} />

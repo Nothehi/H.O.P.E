@@ -144,16 +144,12 @@ export function EnvelopeReveal({ envelopeId }: { envelopeId: string }) {
   );
 }
 
-/** 3D Interactive Flipping Cyberpunk Card */
-function CyberpunkFlipCard({
+/** Flat Clean Cyberpunk Card component without 3D animations */
+function CyberpunkCard({
   cardId,
-  isFlipped,
-  onFlip,
   game,
 }: {
   cardId: string;
-  isFlipped: boolean;
-  onFlip?: () => void;
   game: GameState;
 }) {
   const card = CARDS[cardId];
@@ -164,106 +160,75 @@ function CyberpunkFlipCard({
   const chosenText = res ? (res.winner === "A" ? card.optionA : card.optionB) : "";
 
   return (
-    <div className="w-full [perspective:1200px]" dir="rtl">
-      <div
-        className={`relative w-full transition-transform duration-700 [transform-style:preserve-3d] ${
-          isFlipped ? "[transform:rotateY(180deg)]" : ""
-        }`}
-      >
-        {/* FRONT SIDE OF THE CARD */}
-        <div className="frame-corners space-y-4 rounded-none border border-border bg-card p-5 shadow-2xl [backface-visibility:hidden]">
-          <div className="flex items-center gap-3 border-b border-border/60 pb-3">
+    <div className="space-y-4 max-w-full overflow-hidden" dir="rtl">
+      {/* CRISIS CARD FRONT */}
+      <div className="frame-corners space-y-4 rounded-none border border-border bg-card p-4 md:p-5 shadow-xl max-w-full overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-3">
+          <div className="flex items-center gap-2 min-w-0">
             <ZoneVectorIcon zone={card.zone} />
-            <h3 className="text-lg font-black text-primary tracking-wide">{card.title}</h3>
-            <Badge variant="secondary" className="mr-auto font-bold border border-secondary-foreground/40">
-              بخش: {card.zone}
-            </Badge>
+            <h3 className="text-lg font-black text-primary tracking-wide truncate max-w-xs sm:max-w-md">{card.title}</h3>
           </div>
-          <p className="text-sm leading-relaxed text-foreground/90 font-mono">
-            {card.narrative}
-          </p>
-          <div className="grid gap-3 sm:grid-cols-2 pt-1">
-            <div className="rounded-none border border-primary/30 bg-primary/5 p-3">
-              <span className="font-mono text-xs font-black text-primary">
-                گزینه الف (OPTION A)
-              </span>
-              <p className="mt-1 text-sm font-semibold">{card.optionA}</p>
-            </div>
-            <div className="rounded-none border border-secondary-foreground/30 bg-secondary/20 p-3">
-              <span className="font-mono text-xs font-black text-secondary-foreground">
-                گزینه ب (OPTION B)
-              </span>
-              <p className="mt-1 text-sm font-semibold">{card.optionB}</p>
-            </div>
-          </div>
-          {onFlip && (
-            <div className="flex justify-end pt-1">
-              <Button variant="ghost" size="xs" onClick={onFlip} className="text-xs text-secondary-foreground">
-                <RefreshCw className="size-3.5 ml-1 animate-spin-slow" />
-                چرخش کارت (مشاهده پیامدها پشت کارت)
-              </Button>
-            </div>
-          )}
+          <Badge variant="secondary" className="font-bold border border-secondary-foreground/40 shrink-0">
+            بخش: {card.zone}
+          </Badge>
         </div>
-
-        {/* BACK SIDE OF THE CARD (CONSEQUENCES & RESOLUTION) */}
-        <div className="frame-corners absolute inset-0 space-y-4 rounded-none border border-primary/60 bg-[#121724] p-5 shadow-2xl [backface-visibility:hidden] [transform:rotateY(180deg)]">
-          <div className="flex items-center gap-3 border-b border-primary/40 pb-3">
-            <ZoneVectorIcon zone={card.zone} />
-            <h3 className="text-lg font-black text-primary tracking-wide">
-              پیامد بحران: {card.title}
-            </h3>
-            {res && (
-              <Badge className="mr-auto font-mono font-bold bg-primary text-primary-foreground">
-                گزینه {res.winner === "A" ? "الف" : "ب"} برنده شد
-              </Badge>
-            )}
+        <p className="text-sm leading-relaxed text-foreground/90 font-mono break-words max-w-full text-right">
+          {card.narrative}
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2 pt-1 max-w-full">
+          <div className="rounded-none border border-primary/40 bg-primary/5 p-3 text-right max-w-full overflow-hidden">
+            <span className="font-mono text-xs font-black text-primary block mb-1">
+              گزینه الف (OPTION A)
+            </span>
+            <p className="text-sm font-semibold leading-snug break-words">{card.optionA}</p>
           </div>
-
-          {res ? (
-            <div className="space-y-3 font-mono text-sm">
-              <div className="border border-border bg-background/80 p-3">
-                <span className="text-xs text-muted-foreground block">تصمیم اتخاذ شده:</span>
-                <p className="font-bold text-primary mt-0.5">{chosenText}</p>
-              </div>
-
-              {effects?.aftermath && (
-                <p className="text-xs italic text-foreground/90 bg-primary/10 border-r-2 border-primary p-2">
-                  {effects.aftermath}
-                </p>
-              )}
-
-              {effects && (
-                <div className="space-y-1">
-                  <span className="text-xs text-muted-foreground">تاثیرات بر سامانه‌های حیاتی:</span>
-                  <EffectsList effects={effects} />
-                </div>
-              )}
-
-              {res.leaderName && (
-                <p className="flex items-center gap-1.5 text-xs font-bold text-primary pt-1">
-                  <PenLine className="size-4 ml-1" />
-                  امضا شده در دفترچه رسمی توسط: {res.leaderName}
-                </p>
-              )}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
-              <RefreshCw className="size-6 animate-spin mb-2 text-primary" />
-              <p className="text-sm font-semibold">هنوز رای‌گیری نهایی نشده است. کارت پس از رای‌گیری می‌چرخد.</p>
-            </div>
-          )}
-
-          {onFlip && (
-            <div className="absolute bottom-3 left-4">
-              <Button variant="ghost" size="xs" onClick={onFlip} className="text-xs text-primary">
-                <RotateCcw className="size-3.5 ml-1" />
-                چرخش به روی کارت
-              </Button>
-            </div>
-          )}
+          <div className="rounded-none border border-secondary-foreground/40 bg-secondary/20 p-3 text-right max-w-full overflow-hidden">
+            <span className="font-mono text-xs font-black text-secondary-foreground block mb-1">
+              گزینه ب (OPTION B)
+            </span>
+            <p className="text-sm font-semibold leading-snug break-words">{card.optionB}</p>
+          </div>
         </div>
       </div>
+
+      {/* CONSEQUENCE / RESOLUTION SUMMARY PANEL (IF VOTED) */}
+      {game.phase === "resolution" && res && (
+        <div className="frame-corners space-y-3 rounded-none border border-primary/60 bg-[#121724] p-4 md:p-5 shadow-xl text-right max-w-full overflow-hidden">
+          <div className="flex items-center justify-between gap-2 border-b border-primary/40 pb-2">
+            <span className="text-sm font-black text-primary">نتیجه و پیامد نهایی بحران</span>
+            <Badge className="font-mono font-bold bg-primary text-primary-foreground">
+              گزینه {res.winner === "A" ? "الف" : "ب"} برنده شد
+            </Badge>
+          </div>
+
+          <div className="space-y-2 font-mono text-sm">
+            <div className="border border-border bg-background/80 p-3">
+              <span className="text-xs text-muted-foreground block">تصمیم تایید شده توسط رای خدمه:</span>
+              <p className="font-bold text-primary mt-1 leading-snug break-words">{chosenText}</p>
+            </div>
+
+            {effects?.aftermath && (
+              <p className="text-xs italic text-foreground/90 bg-primary/10 border-r-2 border-primary p-2 leading-relaxed break-words">
+                {effects.aftermath}
+              </p>
+            )}
+
+            {effects && (
+              <div className="space-y-1 pt-1">
+                <span className="text-xs text-muted-foreground block">تاثیر بر سامانه‌های حیاتی:</span>
+                <EffectsList effects={effects} />
+              </div>
+            )}
+
+            {res.leaderName && (
+              <p className="flex items-center gap-1.5 text-xs font-bold text-primary pt-2 border-t border-border/40">
+                <PenLine className="size-4 ml-1 shrink-0" />
+                امضا شده در دفترچه رسمی توسط: {res.leaderName}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -342,10 +307,8 @@ export function DilemmaPanel({
     const iAmTech = mySeat?.role === "technician";
     return (
       <div className="space-y-4" dir="rtl">
-        <CyberpunkFlipCard
+        <CyberpunkCard
           cardId={card.id}
-          isFlipped={isFlipped}
-          onFlip={() => setIsFlipped((v) => !v)}
           game={game}
         />
         {iAmTech ? (
@@ -386,10 +349,8 @@ export function DilemmaPanel({
   if (game.phase === "debate") {
     return (
       <div className="space-y-4" dir="rtl">
-        <CyberpunkFlipCard
+        <CyberpunkCard
           cardId={card.id}
-          isFlipped={isFlipped}
-          onFlip={() => setIsFlipped((v) => !v)}
           game={game}
         />
         <div className="space-y-3 rounded-none border border-border bg-card p-4">
@@ -490,10 +451,8 @@ export function DilemmaPanel({
   if (game.phase === "resolution" && game.lastResolution) {
     return (
       <div className="space-y-4" dir="rtl">
-        <CyberpunkFlipCard
+        <CyberpunkCard
           cardId={card.id}
-          isFlipped={isFlipped}
-          onFlip={() => setIsFlipped((v) => !v)}
           game={game}
         />
         {game.openedEnvelopeId && (
