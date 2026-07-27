@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Check,
   ChevronRight,
+  Cpu,
   Eye,
   Lock,
   Mail,
   PenLine,
+  RefreshCw,
+  RotateCcw,
   Unlock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,6 +22,80 @@ import type {
   GameState,
 } from "@/lib/game/types";
 import { RESOURCE_META, fmtDelta } from "./meta";
+
+export function ZoneVectorIcon({ zone }: { zone: string }) {
+  switch (zone) {
+    case "Bridge":
+      return (
+        <svg className="size-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 3v18M3 12h18" />
+          <circle cx="12" cy="12" r="3" fill="currentColor" fillOpacity="0.3" />
+        </svg>
+      );
+    case "Reactor":
+      return (
+        <svg className="size-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M12 2v4m0 12v4M2 12h4m12 0h4" />
+          <path d="m4.93 4.93 2.83 2.83m8.48 8.48 2.83 2.83M4.93 19.07l2.83-2.83m8.48-8.48 2.83-2.83" />
+        </svg>
+      );
+    case "Engineering":
+      return (
+        <svg className="size-5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4" />
+          <rect x="8" y="8" width="8" height="8" rx="1" />
+        </svg>
+      );
+    case "Life Support":
+      return (
+        <svg className="size-5 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-5.04Z" />
+          <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-5.04Z" />
+        </svg>
+      );
+    case "Medbay":
+      return (
+        <svg className="size-5 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M11 2a1 1 0 0 1 2 0v8h8a1 1 0 0 1 0 2h-8v8a1 1 0 0 1-2 0v-8H3a1 1 0 0 1 0-2h8V2Z" />
+        </svg>
+      );
+    case "Cargo Bay":
+      return (
+        <svg className="size-5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+          <path d="m3.3 7 8.7 5 8.7-5M12 22V12" />
+        </svg>
+      );
+    case "Crew Quarters":
+      return (
+        <svg className="size-5 text-violet-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+      );
+    case "AI Core":
+      return (
+        <svg className="size-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+          <rect x="9" y="9" width="6" height="6" fill="currentColor" fillOpacity="0.3" />
+          <path d="M9 1v3m6-3v3M9 20v3m6-3v3M1 9h3m-3 6h3M20 9h3m-3 6h3" />
+        </svg>
+      );
+    case "Pod Bay":
+      return (
+        <svg className="size-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+          <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-3.05 11a22.35 22.35 0 0 1-3.95 2z" />
+        </svg>
+      );
+    default:
+      return <Cpu className="size-5 text-primary" />;
+  }
+}
 
 export function EffectsList({ effects }: { effects: CardEffects }) {
   const keys = ["oxygen", "hull", "morale", "bond"] as const;
@@ -67,32 +144,124 @@ export function EnvelopeReveal({ envelopeId }: { envelopeId: string }) {
   );
 }
 
-function CardFace({ cardId }: { cardId: string }) {
+/** 3D Interactive Flipping Cyberpunk Card */
+function CyberpunkFlipCard({
+  cardId,
+  isFlipped,
+  onFlip,
+  game,
+}: {
+  cardId: string;
+  isFlipped: boolean;
+  onFlip?: () => void;
+  game: GameState;
+}) {
   const card = CARDS[cardId];
   if (!card) return null;
+
+  const res = game.lastResolution;
+  const effects = res?.effects;
+  const chosenText = res ? (res.winner === "A" ? card.optionA : card.optionB) : "";
+
   return (
-    <div className="frame-corners space-y-3 rounded-none border bg-card p-5" dir="rtl">
-      <div className="flex items-center gap-2">
-        <h3 className="text-lg font-black text-primary">{card.title}</h3>
-        <Badge variant="secondary" className="mr-auto font-bold">
-          بخش: {card.zone}
-        </Badge>
-      </div>
-      <p className="text-sm leading-relaxed text-foreground/90">
-        {card.narrative}
-      </p>
-      <div className="grid gap-3 sm:grid-cols-2 pt-1">
-        <div className="rounded-none border border-border/80 bg-muted/40 p-3">
-          <span className="font-mono text-xs font-black text-primary">
-            گزینه الف (OPTION A)
-          </span>
-          <p className="mt-1 text-sm font-semibold">{card.optionA}</p>
+    <div className="w-full [perspective:1200px]" dir="rtl">
+      <div
+        className={`relative w-full transition-transform duration-700 [transform-style:preserve-3d] ${
+          isFlipped ? "[transform:rotateY(180deg)]" : ""
+        }`}
+      >
+        {/* FRONT SIDE OF THE CARD */}
+        <div className="frame-corners space-y-4 rounded-none border border-border bg-card p-5 shadow-2xl [backface-visibility:hidden]">
+          <div className="flex items-center gap-3 border-b border-border/60 pb-3">
+            <ZoneVectorIcon zone={card.zone} />
+            <h3 className="text-lg font-black text-primary tracking-wide">{card.title}</h3>
+            <Badge variant="secondary" className="mr-auto font-bold border border-secondary-foreground/40">
+              بخش: {card.zone}
+            </Badge>
+          </div>
+          <p className="text-sm leading-relaxed text-foreground/90 font-mono">
+            {card.narrative}
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 pt-1">
+            <div className="rounded-none border border-primary/30 bg-primary/5 p-3">
+              <span className="font-mono text-xs font-black text-primary">
+                گزینه الف (OPTION A)
+              </span>
+              <p className="mt-1 text-sm font-semibold">{card.optionA}</p>
+            </div>
+            <div className="rounded-none border border-secondary-foreground/30 bg-secondary/20 p-3">
+              <span className="font-mono text-xs font-black text-secondary-foreground">
+                گزینه ب (OPTION B)
+              </span>
+              <p className="mt-1 text-sm font-semibold">{card.optionB}</p>
+            </div>
+          </div>
+          {onFlip && (
+            <div className="flex justify-end pt-1">
+              <Button variant="ghost" size="xs" onClick={onFlip} className="text-xs text-secondary-foreground">
+                <RefreshCw className="size-3.5 ml-1 animate-spin-slow" />
+                چرخش کارت (مشاهده پیامدها پشت کارت)
+              </Button>
+            </div>
+          )}
         </div>
-        <div className="rounded-none border border-border/80 bg-muted/40 p-3">
-          <span className="font-mono text-xs font-black text-secondary-foreground">
-            گزینه ب (OPTION B)
-          </span>
-          <p className="mt-1 text-sm font-semibold">{card.optionB}</p>
+
+        {/* BACK SIDE OF THE CARD (CONSEQUENCES & RESOLUTION) */}
+        <div className="frame-corners absolute inset-0 space-y-4 rounded-none border border-primary/60 bg-[#121724] p-5 shadow-2xl [backface-visibility:hidden] [transform:rotateY(180deg)]">
+          <div className="flex items-center gap-3 border-b border-primary/40 pb-3">
+            <ZoneVectorIcon zone={card.zone} />
+            <h3 className="text-lg font-black text-primary tracking-wide">
+              پیامد بحران: {card.title}
+            </h3>
+            {res && (
+              <Badge className="mr-auto font-mono font-bold bg-primary text-primary-foreground">
+                گزینه {res.winner === "A" ? "الف" : "ب"} برنده شد
+              </Badge>
+            )}
+          </div>
+
+          {res ? (
+            <div className="space-y-3 font-mono text-sm">
+              <div className="border border-border bg-background/80 p-3">
+                <span className="text-xs text-muted-foreground block">تصمیم اتخاذ شده:</span>
+                <p className="font-bold text-primary mt-0.5">{chosenText}</p>
+              </div>
+
+              {effects?.aftermath && (
+                <p className="text-xs italic text-foreground/90 bg-primary/10 border-r-2 border-primary p-2">
+                  {effects.aftermath}
+                </p>
+              )}
+
+              {effects && (
+                <div className="space-y-1">
+                  <span className="text-xs text-muted-foreground">تاثیرات بر سامانه‌های حیاتی:</span>
+                  <EffectsList effects={effects} />
+                </div>
+              )}
+
+              {res.leaderName && (
+                <p className="flex items-center gap-1.5 text-xs font-bold text-primary pt-1">
+                  <PenLine className="size-4 ml-1" />
+                  امضا شده در دفترچه رسمی توسط: {res.leaderName}
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
+              <RefreshCw className="size-6 animate-spin mb-2 text-primary" />
+              <p className="text-sm font-semibold">هنوز رای‌گیری نهایی نشده است. کارت پس از رای‌گیری می‌چرخد.</p>
+            </div>
+          )}
+
+          {onFlip && (
+            <div className="absolute bottom-3 left-4">
+              <Button variant="ghost" size="xs" onClick={onFlip} className="text-xs text-primary">
+                <RotateCcw className="size-3.5 ml-1" />
+                چرخش به روی کارت
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -118,6 +287,17 @@ export function DilemmaPanel({
   const [choice, setChoice] = useState<"A" | "B" | "pass">("pass");
   const [tokens, setTokens] = useState(0);
 
+  // Auto-flip card to back side when phase transitions to resolution!
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  useEffect(() => {
+    if (game.phase === "resolution") {
+      setIsFlipped(true);
+    } else {
+      setIsFlipped(false);
+    }
+  }, [game.phase]);
+
   const connected = game.seats.filter((s) => s.connected);
   const lockedCount = connected.filter(
     (s) => game.bids[s.playerId]?.locked,
@@ -127,7 +307,8 @@ export function DilemmaPanel({
   if (game.phase === "reveal") {
     return (
       <div className="flex flex-col items-center gap-4 py-10 text-center" dir="rtl">
-        <div className="frame-corners flex h-40 w-32 items-center justify-center border bg-card shadow-xl">
+        <div className="frame-corners flex h-44 w-36 flex-col items-center justify-center border bg-card shadow-2xl p-4">
+          <span className="font-mono text-xs font-bold text-secondary-foreground mb-2">// CRISIS_CARD</span>
           <span className="font-mono text-3xl font-black tracking-widest text-primary drop-shadow-[0_0_8px_rgba(252,238,10,0.4)]">
             H.O.P.E.
           </span>
@@ -161,7 +342,12 @@ export function DilemmaPanel({
     const iAmTech = mySeat?.role === "technician";
     return (
       <div className="space-y-4" dir="rtl">
-        <CardFace cardId={card.id} />
+        <CyberpunkFlipCard
+          cardId={card.id}
+          isFlipped={isFlipped}
+          onFlip={() => setIsFlipped((v) => !v)}
+          game={game}
+        />
         {iAmTech ? (
           <div className="space-y-3 rounded-none border border-secondary-foreground/60 bg-secondary/30 p-4">
             <div className="flex items-center gap-2 text-sm font-bold text-secondary-foreground">
@@ -200,7 +386,12 @@ export function DilemmaPanel({
   if (game.phase === "debate") {
     return (
       <div className="space-y-4" dir="rtl">
-        <CardFace cardId={card.id} />
+        <CyberpunkFlipCard
+          cardId={card.id}
+          isFlipped={isFlipped}
+          onFlip={() => setIsFlipped((v) => !v)}
+          game={game}
+        />
         <div className="space-y-3 rounded-none border border-border bg-card p-4">
           <div className="flex items-center justify-between text-sm">
             <span className="font-bold text-primary">خرج توکن‌های فرماندهی (رای‌گیری)</span>
@@ -297,38 +488,14 @@ export function DilemmaPanel({
 
   /* ------------------------- resolution --------------------------- */
   if (game.phase === "resolution" && game.lastResolution) {
-    const res = game.lastResolution;
-    const effects = res.effects;
-    const chosenText = res.winner === "A" ? card.optionA : card.optionB;
     return (
       <div className="space-y-4" dir="rtl">
-        <CardFace cardId={card.id} />
-        <div className="space-y-3 rounded-none border border-border bg-card p-4">
-          <div className="flex items-center gap-2">
-            <Badge className="font-mono font-bold">گزینه {res.winner === "A" ? "الف" : "ب"} پیروز شد</Badge>
-            <span className="font-mono text-xs text-muted-foreground">
-              الف: {res.tally.A} در برابر ب: {res.tally.B} توکن
-            </span>
-          </div>
-          <p className="text-sm font-bold text-primary">{chosenText}</p>
-          {effects.aftermath && (
-            <p className="text-sm italic text-muted-foreground bg-muted/30 p-2">
-              {effects.aftermath}
-            </p>
-          )}
-          <EffectsList effects={effects} />
-          {res.leaderName && (
-            <p className="flex items-center gap-1.5 text-sm font-semibold">
-              <PenLine className="size-3.5 ml-1 text-primary" />
-              <span className="font-bold text-primary">{res.leaderName}</span> دفترچه رسمی سفینه را امضا نمود.
-            </p>
-          )}
-          {res.notes.map((n, i) => (
-            <p key={i} className="text-xs text-muted-foreground">
-              {n}
-            </p>
-          ))}
-        </div>
+        <CyberpunkFlipCard
+          cardId={card.id}
+          isFlipped={isFlipped}
+          onFlip={() => setIsFlipped((v) => !v)}
+          game={game}
+        />
         {game.openedEnvelopeId && (
           <EnvelopeReveal envelopeId={game.openedEnvelopeId} />
         )}
