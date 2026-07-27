@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Orbitron, JetBrains_Mono } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -29,13 +28,11 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${orbitron.variable} ${jetBrainsMono.variable} h-full antialiased`}
+      className={`${orbitron.variable} ${jetBrainsMono.variable} dark h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-mono text-lg tracking-wide leading-relaxed">
-        <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
-          {children}
-          <Toaster richColors position="top-center" />
-        </ThemeProvider>
+        {children}
+        <Toaster richColors position="top-center" />
       </body>
     </html>
   );
