@@ -64,7 +64,7 @@ export default function Home() {
               // SYSTEM_TERMINAL_V2.0.77
             </span>
           </div>
-          <CardTitle className="text-4xl md:text-5xl font-black uppercase tracking-[0.3em] text-primary drop-shadow-[0_0_12px_rgba(252,238,10,0.3)]">
+          <CardTitle className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-primary drop-shadow-[0_0_12px_rgba(252,238,10,0.3)] break-words whitespace-normal text-balance">
             H.O.P.E.
           </CardTitle>
           <CardDescription className="text-sm leading-relaxed text-muted-foreground mt-3">

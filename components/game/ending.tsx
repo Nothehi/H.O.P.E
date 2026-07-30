@@ -37,7 +37,7 @@ export function EndingPanel({
           <Badge variant={ending.survived ? "default" : "destructive"}>
             {ending.survived ? "خدمه سفینه زنده ماندند" : "سفر به شکست انجامید"}
           </Badge>
-          <h2 className="text-2xl font-black text-primary">{ending.title}</h2>
+          <h2 className="text-2xl font-black text-primary break-words whitespace-normal text-balance">{ending.title}</h2>
           <p className="text-sm leading-relaxed text-foreground/90">
             {ending.text}
           </p>

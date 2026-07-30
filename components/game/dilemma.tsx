@@ -166,7 +166,7 @@ function CyberpunkCard({
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-3">
           <div className="flex items-center gap-2 min-w-0">
             <ZoneVectorIcon zone={card.zone} />
-            <h3 className="text-lg font-black text-primary tracking-wide truncate max-w-xs sm:max-w-md">{card.title}</h3>
+            <h3 className="text-lg sm:text-xl font-black text-primary tracking-wide break-words whitespace-normal text-balance">{card.title}</h3>
           </div>
           <Badge variant="secondary" className="font-bold border border-secondary-foreground/40 shrink-0">
             بخش: {card.zone}
@@ -272,9 +272,9 @@ export function DilemmaPanel({
   if (game.phase === "reveal") {
     return (
       <div className="flex flex-col items-center gap-4 py-10 text-center" dir="rtl">
-        <div className="frame-corners flex h-44 w-36 flex-col items-center justify-center border bg-card shadow-2xl p-4">
-          <span className="font-mono text-xs font-bold text-secondary-foreground mb-2">// CRISIS_CARD</span>
-          <span className="font-mono text-3xl font-black tracking-widest text-primary drop-shadow-[0_0_8px_rgba(252,238,10,0.4)]">
+        <div className="frame-corners flex h-48 w-40 sm:h-56 sm:w-44 flex-col items-center justify-center border bg-card shadow-2xl p-4">
+          <span className="font-mono text-[10px] sm:text-xs font-bold text-secondary-foreground mb-2">// CRISIS_CARD</span>
+          <span className="font-mono text-2xl sm:text-3xl font-black tracking-widest text-primary drop-shadow-[0_0_8px_rgba(252,238,10,0.4)]">
             H.O.P.E.
           </span>
         </div>

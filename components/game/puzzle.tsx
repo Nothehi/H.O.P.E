@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ChevronRight, Cpu, KeyRound, Lightbulb, ShieldAlert, Terminal } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ export function PuzzlePanel({
     officer?.playerId === selfId || (officer && !officer.connected && !!mySeat);
 
   const [guess, setGuess] = useState("");
+  const [isGlitching, setIsGlitching] = useState(false);
   const [pad, setPad] = useState(puzzle?.scratchpad ?? "");
   const padRef = useRef<HTMLTextAreaElement>(null);
   const padTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -53,14 +55,27 @@ export function PuzzlePanel({
     );
   };
 
+  const handleSubmit = () => {
+    if (!guess.trim()) return;
+    
+    if (guess.trim().toUpperCase() !== def.answer) {
+      setIsGlitching(true);
+      setTimeout(() => setIsGlitching(false), 400);
+      toast.error("کد نامعتبر است! سیستم خطا داد.");
+    }
+    
+    dispatch({ type: "guess", guess });
+    setGuess("");
+  };
+
   return (
     <div className="space-y-5 max-w-full overflow-hidden text-right" dir="rtl">
       {/* Cyberpunk Hacking Header */}
-      <div className="frame-corners space-y-4 rounded-none border border-destructive/80 bg-card p-4 md:p-5 shadow-2xl max-w-full overflow-hidden text-right">
+      <div className={`frame-corners space-y-4 rounded-none border border-destructive/80 p-4 md:p-5 shadow-2xl max-w-full overflow-hidden text-right transition-colors ${isGlitching ? 'animate-glitch border-destructive bg-destructive/20' : 'bg-card'}`}>
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-3">
           <div className="flex items-center gap-2 min-w-0">
             <ShieldAlert className="size-5 text-destructive animate-pulse shrink-0" />
-            <h3 className="text-lg font-black uppercase text-primary tracking-wider truncate">
+            <h3 className="text-lg font-black uppercase text-primary tracking-wider break-words whitespace-normal text-balance">
               {def.title} — قفل امنیتی سیستم
             </h3>
           </div>
@@ -144,9 +159,8 @@ export function PuzzlePanel({
                   disabled={!mySeat}
                   dir="rtl"
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" && guess.trim()) {
-                      dispatch({ type: "guess", guess });
-                      setGuess("");
+                    if (e.key === "Enter") {
+                      handleSubmit();
                     }
                   }}
                 />
@@ -154,10 +168,7 @@ export function PuzzlePanel({
               <Button
                 disabled={!mySeat || !guess.trim()}
                 className="shrink-0"
-                onClick={() => {
-                  dispatch({ type: "guess", guess });
-                  setGuess("");
-                }}
+                onClick={handleSubmit}
               >
                 <KeyRound className="size-4 ml-1 shrink-0" />
                 تست و اجرای کد

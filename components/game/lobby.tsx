@@ -24,8 +24,8 @@ export function Lobby({
   return (
     <div className="mx-auto max-w-2xl space-y-6 py-4" dir="rtl">
       <div className="space-y-1 text-center">
-        <h2 className="text-xl font-black uppercase tracking-[0.2em] text-primary">
-          سفر اکشافی شماره {chronicle.voyage + 1} — تجمیع و آمادگی خدمه
+        <h2 className="text-xl font-black uppercase tracking-[0.1em] sm:tracking-[0.2em] text-primary break-words whitespace-normal text-balance">
+          سفر اکتشافی شماره {chronicle.voyage + 1} — تجمیع و آمادگی خدمه
         </h2>
         <p className="text-sm text-muted-foreground">
           بخش و مسئولیت تخصصی خود را انتخاب کنید. نقش‌های فرضی وجود ندارد — شما با نام واقعی خود بازی می‌کنید و دفترچه سفینه آن را ثبت می‌کند.

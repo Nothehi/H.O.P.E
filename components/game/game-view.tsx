@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useGame } from "@/hooks/use-game";
 import type { RoomEvent } from "@/hooks/use-peer-room";
 import { AGENDAS, CARDS, CLUES } from "@/lib/game/content";
@@ -86,27 +87,53 @@ function CrewPanel({
           />
         ))}
         {mySeat && game.stage !== "lobby" && (
-          <div className="mt-3 space-y-2 rounded-none border border-dashed border-primary/40 bg-card p-3">
-            <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-primary">
-              <Eye className="size-3.5 ml-1" />
-              پرونده محرمانه شما — کاملاً مخفی نگه دارید
-            </p>
-            {agenda && (
-              <div className="text-xs">
-                <p className="font-semibold">
-                  {agenda.title}{" "}
-                  <span className="text-muted-foreground">
-                    (+{agenda.points} امتیاز)
-                  </span>
-                </p>
-                <p className="text-muted-foreground">{agenda.description}</p>
-              </div>
-            )}
-            {(mySeat.clueIds ?? []).map((id) => (
-              <p key={id} className="text-[11px] italic text-secondary-foreground">
-                🔑 {CLUES[id]?.text}
-              </p>
-            ))}
+          <div className="mt-4 px-2">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="w-full border-dashed border-primary/40 text-primary hover:bg-primary/10 hover:text-primary">
+                  <Eye className="size-4 ml-2" />
+                  مشاهده پرونده محرمانه
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md border-primary/20" dir="rtl">
+                <DialogHeader>
+                  <DialogTitle className="text-primary flex items-center gap-2 text-xl font-black tracking-wide">
+                    <Eye className="size-5" />
+                    پرونده محرمانه شما
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-2 text-right">
+                  <p className="text-sm text-muted-foreground font-semibold">
+                    این اطلاعات کاملاً مخفی هستند و نباید مستقیماً به سایر خدمه نشان داده شوند.
+                  </p>
+                  
+                  {agenda && (
+                    <div className="rounded-none border border-primary/20 bg-primary/5 p-4 space-y-2">
+                      <p className="font-bold text-base text-foreground">
+                        {agenda.title}{" "}
+                        <span className="text-primary/80 text-sm font-normal">
+                          (+{agenda.points} امتیاز)
+                        </span>
+                      </p>
+                      <p className="text-sm text-muted-foreground leading-relaxed font-mono">{agenda.description}</p>
+                    </div>
+                  )}
+                  
+                  {mySeat.clueIds && mySeat.clueIds.length > 0 && (
+                    <div className="space-y-3 rounded-none border border-secondary-foreground/20 bg-secondary/20 p-4">
+                      <p className="font-bold text-sm text-secondary-foreground mb-2 border-b border-secondary-foreground/20 pb-2">
+                        مدارک و شواهد:
+                      </p>
+                      {mySeat.clueIds.map((id) => (
+                        <p key={id} className="text-sm leading-relaxed italic text-secondary-foreground font-mono">
+                          🔑 {CLUES[id]?.text}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
       </ScrollArea>
