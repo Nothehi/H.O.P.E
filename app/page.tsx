@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Satellite, Plus, LogIn } from "lucide-react";
+import { Plus, LogIn } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +29,7 @@ export default function Home() {
   const requireName = (): string | null => {
     const trimmed = name.trim();
     if (!trimmed) {
-      toast.error("Pick a display name first.");
+      toast.error("لطفاً ابتدا نام نمایشی خود را وارد کنید.");
       return null;
     }
     return trimmed;
@@ -40,8 +40,6 @@ export default function Home() {
     if (!displayName) return;
     setBusy(true);
     sessionStorage.setItem("wt-name", displayName);
-    // Per-tab flag: this tab owns the room beacon. Never part of the URL,
-    // so shared links always join instead of trying to re-create.
     if (create) sessionStorage.setItem(`wt-create:${roomId}`, "1");
     router.push(`/room?id=${encodeURIComponent(roomId)}`);
   };
@@ -51,40 +49,41 @@ export default function Home() {
   const handleJoin = () => {
     const roomId = normalizeRoomId(roomInput);
     if (!isValidRoomId(roomId)) {
-      toast.error("Room IDs are 4–32 letters, digits, or dashes.");
+      toast.error("کد سفینه باید بین ۴ تا ۳۲ حرف، عدد یا خط تیره باشد.");
       return;
     }
     enterRoom(roomId, false);
   };
 
   return (
-    <main className="flex flex-1 items-center justify-center p-4">
-      <Card className="frame-corners w-full max-w-md overflow-visible border">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex size-12 items-center justify-center border bg-primary text-primary-foreground">
-            <Satellite className="size-6" />
+    <main className="flex flex-1 items-center justify-center p-4 md:p-8" dir="rtl">
+      <Card className="frame-corners w-full max-w-lg border">
+        <CardHeader className="text-center pb-2">
+          <div className="mx-auto mb-3 flex items-center justify-center">
+            <span className="font-mono text-xs font-bold tracking-widest text-secondary-foreground border border-secondary-foreground/40 bg-secondary/60 px-3 py-1">
+              // SYSTEM_TERMINAL_V2.0.77
+            </span>
           </div>
-          <CardTitle className="text-2xl font-bold uppercase tracking-[0.3em]">
+          <CardTitle className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-primary drop-shadow-[0_0_12px_rgba(252,238,10,0.3)] break-words whitespace-normal text-balance">
             H.O.P.E.
           </CardTitle>
-          <CardDescription>
-            A legacy board game for 3–8 crew of a dying generation ship —
-            cooperative survival, social deduction, and permanent consequences.
-            Peer-to-peer over WebRTC; the campaign Chronicle lives in your
-            browser.
+          <CardDescription className="text-sm leading-relaxed text-muted-foreground mt-3">
+            بازی ماجرایی و بقای سفینه نسل آخر — برای ۳ تا ۸ نفر خدمه.
+            تصمیم‌گیری‌های گروهی، نبرد برای بقا و ثبت عواقب دائمی در دفترچه سفینه.
+            ارتباط همتا‌به‌همتا (P2P) بدون نیاز به سرور مرکزی.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
+        <CardContent className="space-y-6 pt-4">
+          <div className="space-y-2 text-right">
             <label
               htmlFor="name"
-              className="text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+              className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
             >
-              Display name
+              نام / شناسه خدمه
             </label>
             <Input
               id="name"
-              placeholder="e.g. Hossein"
+              placeholder="مثلاً: حسین"
               value={name}
               maxLength={32}
               onChange={(e) => setName(e.target.value)}
@@ -97,28 +96,28 @@ export default function Home() {
             onClick={handleCreate}
             disabled={busy}
           >
-            <Plus className="size-4" />
-            Launch a ship
+            <Plus className="size-4 ml-2" />
+            پرتاب و راه اندازی سفینه جدید
           </Button>
 
           <div className="flex items-center gap-3">
             <Separator className="flex-1" />
-            <span className="text-xs uppercase tracking-widest text-muted-foreground">
-              or board an existing one
+            <span className="text-xs uppercase tracking-wider text-muted-foreground">
+              یا ورود به سفینه‌ای دیگر
             </span>
             <Separator className="flex-1" />
           </div>
 
           <div className="flex gap-2">
             <Input
-              placeholder="Ship code"
+              placeholder="کد اختصاصی سفینه"
               value={roomInput}
               onChange={(e) => setRoomInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleJoin()}
             />
             <Button variant="secondary" onClick={handleJoin} disabled={busy}>
-              <LogIn className="size-4" />
-              Join
+              <LogIn className="size-4 ml-1" />
+              ورود
             </Button>
           </div>
         </CardContent>

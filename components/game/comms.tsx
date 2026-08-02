@@ -32,12 +32,12 @@ export function Comms({
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div className="flex h-full min-h-0 flex-col" dir="rtl">
       <ScrollArea className="flex-1 px-3">
         <div className="flex flex-col gap-2 py-3">
           {messages.length === 0 && (
             <p className="py-8 text-center text-xs text-muted-foreground">
-              Ship&apos;s intercom is quiet. Debate, accuse, deceive…
+              ارتباطات بی‌پاسخ است... گفتگو، بحث، اتهام و رازهای خود را به اشتراک بگذارید.
             </p>
           )}
           {messages.map((m) => (
@@ -45,7 +45,7 @@ export function Comms({
               <span
                 className={`font-semibold ${m.own ? "text-primary" : ""}`}
               >
-                {m.own ? "You" : m.name}:
+                {m.own ? "شما" : m.name}:
               </span>{" "}
               <span className="break-words">{m.text}</span>
             </p>
@@ -56,7 +56,7 @@ export function Comms({
       <div className="flex gap-2 border-t p-2">
         <Input
           value={draft}
-          placeholder="Intercom…"
+          placeholder="پیام به خدمه سفینه..."
           disabled={!connected}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {

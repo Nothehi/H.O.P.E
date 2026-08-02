@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   Check,
   Copy,
@@ -9,7 +10,6 @@ import {
   Eye,
   Loader2,
   LogOut,
-  Satellite,
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useGame } from "@/hooks/use-game";
 import type { RoomEvent } from "@/hooks/use-peer-room";
 import { AGENDAS, CARDS, CLUES } from "@/lib/game/content";
@@ -76,7 +77,7 @@ function CrewPanel({
   const mySeat = game.seats.find((s) => s.playerId === selfId);
   const agenda = mySeat?.agendaId ? AGENDAS[mySeat.agendaId] : null;
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div className="flex h-full min-h-0 flex-col" dir="rtl">
       <ScrollArea className="flex-1 px-2 py-2">
         {game.seats.map((seat, i) => (
           <SeatRow
@@ -86,27 +87,53 @@ function CrewPanel({
           />
         ))}
         {mySeat && game.stage !== "lobby" && (
-          <div className="mt-3 space-y-2 rounded-lg border border-dashed p-3">
-            <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              <Eye className="size-3.5" />
-              Your dossier — keep it secret
-            </p>
-            {agenda && (
-              <div className="text-xs">
-                <p className="font-semibold">
-                  {agenda.title}{" "}
-                  <span className="text-muted-foreground">
-                    (+{agenda.points})
-                  </span>
-                </p>
-                <p className="text-muted-foreground">{agenda.description}</p>
-              </div>
-            )}
-            {(mySeat.clueIds ?? []).map((id) => (
-              <p key={id} className="text-[11px] italic text-muted-foreground">
-                🔑 {CLUES[id]?.text}
-              </p>
-            ))}
+          <div className="mt-4 px-2">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="w-full border-dashed border-primary/40 text-primary hover:bg-primary/10 hover:text-primary">
+                  <Eye className="size-4 ml-2" />
+                  مشاهده پرونده محرمانه
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md border-primary/20" dir="rtl">
+                <DialogHeader>
+                  <DialogTitle className="text-primary flex items-center gap-2 text-xl font-black tracking-wide">
+                    <Eye className="size-5" />
+                    پرونده محرمانه شما
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-2 text-right">
+                  <p className="text-sm text-muted-foreground font-semibold">
+                    این اطلاعات کاملاً مخفی هستند و نباید مستقیماً به سایر خدمه نشان داده شوند.
+                  </p>
+                  
+                  {agenda && (
+                    <div className="rounded-none border border-primary/20 bg-primary/5 p-4 space-y-2">
+                      <p className="font-bold text-base text-foreground">
+                        {agenda.title}{" "}
+                        <span className="text-primary/80 text-sm font-normal">
+                          (+{agenda.points} امتیاز)
+                        </span>
+                      </p>
+                      <p className="text-sm text-muted-foreground leading-relaxed font-mono">{agenda.description}</p>
+                    </div>
+                  )}
+                  
+                  {mySeat.clueIds && mySeat.clueIds.length > 0 && (
+                    <div className="space-y-3 rounded-none border border-secondary-foreground/20 bg-secondary/20 p-4">
+                      <p className="font-bold text-sm text-secondary-foreground mb-2 border-b border-secondary-foreground/20 pb-2">
+                        مدارک و شواهد:
+                      </p>
+                      {mySeat.clueIds.map((id) => (
+                        <p key={id} className="text-sm leading-relaxed italic text-secondary-foreground font-mono">
+                          🔑 {CLUES[id]?.text}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
       </ScrollArea>
@@ -133,16 +160,16 @@ export function GameView({
   const onEvent = useCallback((event: RoomEvent) => {
     switch (event.kind) {
       case "join":
-        toast.success(`${event.name} came aboard`);
+        toast.success(`${event.name} وارد سفینه شد`);
         break;
       case "leave":
-        toast.info(`${event.name || "A crew member"} left the ship`);
+        toast.info(`${event.name || "یکی از خدمه"} سفینه را ترک کرد`);
         break;
       case "beacon-claimed":
-        toast.info("You now hold the ship's beacon (host)");
+        toast.info("شما اکنون هدایت‌کننده اصلی سفینه (میزبان) هستید");
         break;
       case "room-closed":
-        toast.error("The ship went dark");
+        toast.error("ارتباط با سفینه قطع شد");
         break;
     }
   }, []);
@@ -150,10 +177,7 @@ export function GameView({
   const { status, error, selfId, isHost, members, messages, sendChat, game, dispatch } =
     useGame(roomId, displayName, create, onEvent);
 
-  // While the Comms tab is open, everything is read; otherwise incoming
-  // messages from other players pile up as unread.
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (sideTab === "comms") setReadCount(messages.length);
   }, [sideTab, messages.length]);
 
@@ -168,7 +192,7 @@ export function GameView({
   const copyRoomId = async () => {
     await navigator.clipboard.writeText(roomId);
     setCopied(true);
-    toast.success("Ship code copied");
+    toast.success("کد سفینه کپی شد");
     setTimeout(() => setCopied(false), 1_500);
   };
 
@@ -190,11 +214,11 @@ export function GameView({
   const phaseLabel =
     game?.stage === "playing"
       ? {
-          reveal: "Crisis Reveal",
-          peek: "Hacking the Predictive Systems",
-          debate: "Debate & Voting",
-          resolution: "Resolution",
-          puzzle: "System Lockout",
+          reveal: "آشکارسازی بحران",
+          peek: "هک سیستم‌های پیش‌بینی",
+          debate: "گفتگو و رای‌گیری",
+          resolution: "نتیجه و پیامدها",
+          puzzle: "قفل امنیتی سیستم",
         }[game.phase]
       : null;
 
@@ -206,12 +230,12 @@ export function GameView({
     >
       <TabsList className="mx-2 mt-2">
         <TabsTrigger value="crew" className="flex-1">
-          Crew
+          خدمه سفینه
         </TabsTrigger>
         <TabsTrigger value="comms" className="flex-1 gap-1.5">
-          Comms
+          ارتباطات
           {unreadCount > 0 && (
-            <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground tabular-nums">
+            <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground tabular-nums">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
@@ -231,32 +255,31 @@ export function GameView({
   );
 
   return (
-    <div className="flex h-dvh flex-col">
-      <header className="flex items-center gap-2 border-b bg-card/60 px-4 py-2.5">
-        <Satellite className="size-5 text-primary" />
+    <div className="flex h-dvh flex-col" dir="rtl">
+      <header className="flex items-center gap-2 border-b bg-card/80 px-4 py-2.5">
+        <span className="font-mono text-xs font-black tracking-widest text-primary border border-primary px-2 py-0.5">
+          H.O.P.E.
+        </span>
         <div className="flex min-w-0 items-center gap-2">
-          <h1 className="truncate text-sm font-bold uppercase tracking-[0.25em]">
-            H.O.P.E.
-          </h1>
           <Badge variant="outline" className="hidden font-mono sm:inline-flex">
-            {roomId}
+            کد: {roomId}
           </Badge>
           {isHost && (
-            <Badge variant="outline" className="gap-1">
-              <Crown className="size-3" /> host
+            <Badge variant="outline" className="gap-1 text-primary border-primary/50">
+              <Crown className="size-3 ml-1" /> میزبان
             </Badge>
           )}
           {game?.stage === "playing" && (
             <Badge className="hidden md:inline-flex">
-              Voyage {game.chronicle.voyage} · Round {game.round}/{FINAL_ROUND}{" "}
+              سفر {game.chronicle.voyage} · دور {game.round}/{FINAL_ROUND}{" "}
               · {phaseLabel}
             </Badge>
           )}
         </div>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="mr-auto flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={copyRoomId}>
             {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-            <span className="hidden sm:inline">Ship code</span>
+            <span className="hidden sm:inline">کپی کد</span>
           </Button>
           <Button
             variant="outline"
@@ -269,13 +292,13 @@ export function GameView({
             {unreadCount > 0 && (
               <span
                 className="absolute -right-1 -top-1 size-2.5 rounded-full bg-primary ring-2 ring-background"
-                aria-label={`${unreadCount} unread messages`}
+                aria-label={`${unreadCount} پیام خوانده نشده`}
               />
             )}
           </Button>
           <Button variant="ghost" size="sm" onClick={leave}>
             <LogOut className="size-4" />
-            <span className="hidden sm:inline">Abandon ship</span>
+            <span className="hidden sm:inline">ترک سفینه</span>
           </Button>
         </div>
       </header>
