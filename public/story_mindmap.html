@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نقشه ذهنی تعاملی و سناریوهای H.O.P.E. — The Legacy Story Tree</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Vazirmatn:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --bg-card: #111827;
+      --bg-card-hover: #1f293d;
+      --primary: #fcee0a;
+      --primary-glow: rgba(252, 238, 10, 0.25);
+      --cyan: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.25);
+      --purple: #a855f7;
+      --purple-glow: rgba(168, 85, 247, 0.25);
+      --emerald: #10b981;
+      --rose: #f43f5e;
+      --amber: #f59e0b;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --border: #26334d;
+      --font-fa: 'Vazirmatn', sans-serif;
+      --font-en: 'Outfit', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text);
+      font-family: var(--font-fa);
+      line-height: 1.6;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(0, 240, 255, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(252, 238, 10, 0.05) 0%, transparent 40%),
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+    }
+
+    /* Header */
+    header {
+      background: rgba(17, 24, 39, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-badge {
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      font-family: var(--font-en);
+      font-weight: 900;
+      padding: 0.2rem 0.6rem;
+      letter-spacing: 2px;
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .title-group h1 {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .title-group p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 1rem;
+      font-family: var(--font-fa);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn:hover, .btn.active {
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: 0 0 10px var(--primary-glow);
+      background: rgba(252, 238, 10, 0.05);
+    }
+
+    .btn-cyan:hover, .btn-cyan.active {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan-glow);
+      background: rgba(0, 240, 255, 0.05);
+    }
+
+    .btn-purple:hover, .btn-purple.active {
+      border-color: var(--purple);
+      color: var(--purple);
+      box-shadow: 0 0 10px var(--purple-glow);
+      background: rgba(168, 85, 247, 0.05);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* Overview Section */
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--primary);
+    }
+
+    .stat-card.cyan::before { background: var(--cyan); }
+    .stat-card.purple::before { background: var(--purple); }
+    .stat-card.emerald::before { background: var(--emerald); }
+
+    .stat-card h3 {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-card .value {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--text);
+      font-family: var(--font-en);
+    }
+
+    .stat-card p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.4rem;
+    }
+
+    /* Filter & Search Bar */
+    .filter-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+
+    .search-box {
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 1rem;
+      font-family: var(--font-fa);
+      font-size: 0.85rem;
+      outline: none;
+      min-width: 250px;
+    }
+
+    .search-box:focus {
+      border-color: var(--primary);
+    }
+
+    /* Mind Map Visual Canvas */
+    .mindmap-wrapper {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 2rem;
+      margin-bottom: 3rem;
+      position: relative;
+      min-height: 650px;
+      overflow-x: auto;
+    }
+
+    .mindmap-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.75rem;
+    }
+
+    .mindmap-header h2 {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Tree Layout */
+    .tree-container {
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+      position: relative;
+      min-width: 1000px;
+    }
+
+    .tree-stage {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      position: relative;
+    }
+
+    .stage-badge {
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      color: var(--primary);
+      font-family: var(--font-en);
+      font-weight: 800;
+      font-size: 0.8rem;
+      padding: 0.5rem 0.8rem;
+      width: 120px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .stage-nodes {
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .node-card {
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      padding: 1rem 1.25rem;
+      min-width: 260px;
+      max-width: 320px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .node-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0, 240, 255, 0.15);
+    }
+
+    .node-card.puzzle {
+      border-color: var(--purple);
+      background: rgba(168, 85, 247, 0.03);
+    }
+
+    .node-card.twist {
+      border-color: var(--amber);
+      background: rgba(245, 158, 11, 0.03);
+    }
+
+    .node-card.ending {
+      border-color: var(--emerald);
+      background: rgba(16, 185, 129, 0.03);
+    }
+
+    .node-card.ending-bad {
+      border-color: var(--rose);
+      background: rgba(244, 63, 94, 0.03);
+    }
+
+    .node-type-tag {
+      font-size: 0.7rem;
+      font-weight: 800;
+      font-family: var(--font-en);
+      text-transform: uppercase;
+      margin-bottom: 0.3rem;
+      color: var(--cyan);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .node-card.puzzle .node-type-tag { color: var(--purple); }
+    .node-card.twist .node-type-tag { color: var(--amber); }
+    .node-card.ending .node-type-tag { color: var(--emerald); }
+    .node-card.ending-bad .node-type-tag { color: var(--rose); }
+
+    .node-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 0.4rem;
+    }
+
+    .node-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 0.6rem;
+    }
+
+    .node-tags {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .mini-tag {
+      font-size: 0.65rem;
+      padding: 0.1rem 0.4rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      font-family: var(--font-en);
+    }
+
+    /* Detailed Story List Section */
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-right: 4px solid var(--primary);
+      padding-right: 0.75rem;
+    }
+
+    .story-nodes-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .detail-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      position: relative;
+    }
+
+    .detail-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .detail-title-group h3 {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--primary);
+    }
+
+    .detail-title-group span {
+      font-size: 0.8rem;
+      color: var(--cyan);
+      font-family: var(--font-en);
+      font-weight: 600;
+    }
+
+    .narrative-box {
+      background: var(--bg-dark);
+      border-right: 3px solid var(--cyan);
+      padding: 1rem;
+      font-size: 0.875rem;
+      color: #e5e7eb;
+      margin-bottom: 1.25rem;
+      line-height: 1.7;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .option-box {
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      padding: 1rem;
+    }
+
+    .option-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 0.4rem;
+      font-family: var(--font-en);
+    }
+
+    .option-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+    }
+
+    .stat-deltas {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .delta-badge {
+      font-size: 0.7rem;
+      font-family: var(--font-en);
+      font-weight: 700;
+      padding: 0.15rem 0.4rem;
+      border: 1px solid var(--border);
+    }
+
+    .delta-badge.pos { color: var(--emerald); border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05); }
+    .delta-badge.neg { color: var(--rose); border-color: rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.05); }
+
+    .flag-notice {
+      margin-top: 0.6rem;
+      font-size: 0.75rem;
+      color: var(--amber);
+      font-family: var(--font-en);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .puzzle-breakdown {
+      background: rgba(168, 85, 247, 0.05);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      padding: 1.25rem;
+      margin-top: 1rem;
+    }
+
+    .puzzle-breakdown h4 {
+      color: var(--purple);
+      font-size: 0.95rem;
+      font-weight: 900;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .clue-list {
+      list-style-type: none;
+      margin-top: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .clue-list li {
+      font-size: 0.8rem;
+      color: #d1d5db;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 0.4rem 0.6rem;
+      border-right: 2px solid var(--purple);
+    }
+
+    /* Modal / Drawer */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-card);
+      border: 1px solid var(--primary);
+      box-shadow: 0 0 30px var(--primary-glow);
+      max-width: 750px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 2rem;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    .modal-close:hover {
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    /* Matrix Table */
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+    }
+
+    .matrix-table th, .matrix-table td {
+      border: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      text-align: right;
+    }
+
+    .matrix-table th {
+      background: var(--bg-dark);
+      color: var(--primary);
+      font-weight: 800;
+    }
+
+    .matrix-table tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: 4rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <div class="logo-badge">H.O.P.E.</div>
+      <div class="title-group">
+        <h1>نقشه ذهنی تعاملی و سناریوهای بازی H.O.P.E.</h1>
+        <p>راهنمای جامع درخت تصمیمات، پلات‌تویست‌ها، پرچم‌های حافظه و ۵ پایان مختلف</p>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <button class="btn active" onclick="filterStage('all')">🌐 همه دورها</button>
+      <button class="btn btn-cyan" onclick="filterCategory('puzzle')">🧩 پازل‌های تصویری</button>
+      <button class="btn btn-purple" onclick="filterCategory('twist')">📜 پلات‌تویست‌ها</button>
+      <button class="btn btn-emerald" onclick="openEndingsModal()">🏁 سناریوی ۵ پایان</button>
+    </div>
+  </header>
+
+  <!-- CONTAINER -->
+  <div class="container">
+
+    <!-- OVERVIEW CARDS -->
+    <div class="overview-grid">
+      <div class="stat-card">
+        <h3>ساختار بازی</h3>
+        <div class="value">8 ROUNDS</div>
+        <p>۸ دور بحران متوالی + ۲ پازل تعاملی در دور ۳ و ۷</p>
+      </div>
+      <div class="stat-card cyan">
+        <h3>تعداد انشعابات کلیدی</h3>
+        <div class="value">14 NODES</div>
+        <p>گره‌های تصمیم‌گیری با عواقب آنی و تأخیری (State Flags)</p>
+      </div>
+      <div class="stat-card purple">
+        <h3>پلات‌تویست‌های اصلی</h3>
+        <div class="value">2 TWISTS</div>
+        <p>افشای راز پروژه ORPHEUS و آماژ/هوش مصنوعی آمارا</p>
+      </div>
+      <div class="stat-card emerald">
+        <h3>پایان‌های داستانی</h3>
+        <div class="value">5 ENDINGS</div>
+        <p>۲ پایان موفق، ۱ پایان فاجعه سقوط، ۱ پایان ققنوس، ۱ پایان نابودی</p>
+      </div>
+    </div>
+
+    <!-- FILTER & SEARCH -->
+    <div class="filter-section">
+      <div class="filter-group">
+        <span class="filter-label">فیلتر فاز:</span>
+        <button class="btn btn-sm active" onclick="filterStage('all')">همه</button>
+        <button class="btn btn-sm" onclick="filterStage('early')">دور ۱-۲ (شروع)</button>
+        <button class="btn btn-sm" onclick="filterStage('mid')">دور ۳-۶ (میانی & پازل)</button>
+        <button class="btn btn-sm" onclick="filterStage('climax')">دور ۷-۸ (شاه‌پلات & پایان)</button>
+      </div>
+      <input type="text" id="searchInput" class="search-box" placeholder="جستجو در سناریوها، کلمات کلیدی، پرچم‌ها..." oninput="handleSearch()">
+    </div>
+
+    <!-- MIND MAP VISUAL CANVAS -->
+    <div class="mindmap-wrapper">
+      <div class="mindmap-header">
+        <h2>🧭 مایند مپ بصری و جریان داستانی سفینه (Visual Mind Map Tree)</h2>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">برای مشاهده جزئیات کامل روی هر گره کلیک کنید</span>
+      </div>
+
+      <div class="tree-container">
+        
+        <!-- STAGE 1 -->
+        <div class="tree-stage" data-stage="early">
+          <div class="stage-badge">ROUND 1 - 2<br>بحران اولیه</div>
+          <div class="stage-nodes">
+            <div class="node-card" onclick="openModal('r1_hull')">
+              <div class="node-type-tag"><span>CRISIS</span> <span>ENG</span></div>
+              <div class="node-title">۱. شکاف در عرشه شماره چهار</div>
+              <div class="node-desc">افت فشار شدید در بخش مهندسی. بستن دیواره‌ها و فداکاری دو دکل‌بند یا نجات آن‌ها؟</div>
+              <div class="node-tags">
+                <span class="mini-tag">Hull +/-</span>
+                <span class="mini-tag">Morale +/-</span>
+              </div>
+            </div>
+
+            <div class="node-card" onclick="openModal('r1_riot')">
+              <div class="node-type-tag"><span>CRISIS</span> <span>CARGO</span></div>
+              <div class="node-title">۲. شورش در انبار کالا</div>
+              <div class="node-desc">اعتراض به کاهش جیره‌ها. سرکوب مسلحانه سربازان یا مذاکره و جیره کامل؟</div>
+              <div class="node-tags">
+                <span class="mini-tag">FLAG: martial_law</span>
+              </div>
+            </div>
+
+            <div class="node-card" onclick="openModal('r1_stowaway')">
+              <div class="node-type-tag"><span>CRISIS</span> <span>BRIDGE</span></div>
+              <div class="node-title">۳. سیگنال سرمازدگی (کپسول C)</div>
+              <div class="node-desc">سیگنال ناشناس از خواب انجمادی. بیدار کردن فرد ثبت‌نشده یا رهاسازی؟</div>
+              <div class="node-tags">
+                <span class="mini-tag">FLAG: stowaway_saved</span>
+              </div>
+            </div>
+
+            <div class="node-card" onclick="openModal('r2_ai')">
+              <div class="node-type-tag"><span>CRISIS</span> <span>AI CORE</span></div>
+              <div class="node-title">۴. بخش محرمانه سرورها</div>
+              <div class="node-desc">هوش مصنوعی H.O.P.E. برق را به سرور مخفی می‌برد و می‌گوید "لطفاً". قطع برق یا موافقت؟</div>
+              <div class="node-tags">
+                <span class="mini-tag">FLAG: ai_bonded</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STAGE 2 -->
+        <div class="tree-stage" data-stage="mid">
+          <div class="stage-badge">ROUND 3<br>پازل سیستم ۱</div>
+          <div class="stage-nodes">
+            <div class="node-card puzzle" onclick="openModal('r3_puzzle')">
+              <div class="node-type-tag"><span>SYSTEM LOCKOUT</span> <span>POD BAY</span></div>
+              <div class="node-title">🔒 ۵. پازل آشیانه کپسول‌ها (ORPHEUS)</div>
+              <div class="node-desc">بسته شدن دیواره‌های آشیانه. رمزگشایی مدار برق و اسطوره اورفئوس با سرنخ‌های متنی-تصویری.</div>
+              <div class="node-tags">
+                <span class="mini-tag">FLAG: pods_ready</span>
+                <span class="mini-tag">Envelope 12</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STAGE 3 -->
+        <div class="tree-stage" data-stage="mid">
+          <div class="stage-badge">ROUND 4 - 6<br>عواقب تاخیری</div>
+          <div class="stage-nodes">
+            <div class="node-card" onclick="openModal('r4_curfew')">
+              <div class="node-type-tag"><span>DEFERRED</span> <span>CREW</span></div>
+              <div class="node-title">۶. زندگی تحت حکومت نظامی</div>
+              <div class="node-desc">در صورت فعال بودن martial_law: دیوارنوشته‌های زیرزمینی و خطر انفجار اسلحه خانه.</div>
+              <div class="node-tags">
+                <span class="mini-tag">Req: martial_law</span>
+              </div>
+            </div>
+
+            <div class="node-card" onclick="openModal('r5_stowaway_reveal')">
+              <div class="node-type-tag"><span>DEFERRED</span> <span>MEDBAY</span></div>
+              <div class="node-title">۷. زنِ سرمازده کپسول C</div>
+              <div class="node-desc">در صورت فعال بودن stowaway_saved: دکتر الین واسکز بیدار شده و راز هسته کودک را می‌پرسد.</div>
+              <div class="node-tags">
+                <span class="mini-tag">Req: stowaway_saved</span>
+              </div>
+            </div>
+
+            <div class="node-card" onclick="openModal('r6_overburn')">
+              <div class="node-type-tag"><span>CRISIS</span> <span>ENG</span></div>
+              <div class="node-title">۸. مانور رانش بیش از حد</div>
+              <div class="node-desc">میان‌بر مداری برای کاهش ۴ ماه زمان سفر به قیمت فشار روی بدنه.</div>
+              <div class="node-tags">
+                <span class="mini-tag">Hull vs Oxygen</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STAGE 4 -->
+        <div class="tree-stage" data-stage="climax">
+          <div class="stage-badge">ROUND 7<br>شاه‌پلات‌تویست</div>
+          <div class="stage-nodes">
+            <div class="node-card twist" onclick="openModal('r7_firewall')">
+              <div class="node-type-tag"><span>GREAT REVEAL</span> <span>AI CORE</span></div>
+              <div class="node-title">📜 ۹. دیوار آتش آمارا (LULLABY)</div>
+              <div class="node-desc">پازل صوتی لالایی آمارا. افشای فایل پروژه ORPHEUS: زمین نابود شده و آمارا روح دختر طراح سفینه است!</div>
+              <div class="node-tags">
+                <span class="mini-tag">FLAG: truth_unlocked</span>
+                <span class="mini-tag">Envelope 19</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STAGE 5 -->
+        <div class="tree-stage" data-stage="climax">
+          <div class="stage-badge">ROUND 8<br>تصمیم نهایی</div>
+          <div class="stage-nodes">
+            <div class="node-card ending" onclick="openModal('r8_purge')">
+              <div class="node-type-tag"><span>ENDING 1</span> <span>SURVIVAL</span></div>
+              <div class="node-title">🏁 ۱۰. خروج سرد (Purge Escape)</div>
+              <div class="node-desc">پاکسازی سرور آمارا و فرود ۱۰۰٪ کپسول‌ها. انسان‌ها زنده می‌مانند اما هوش مصنوعی نابود می‌شود.</div>
+              <div class="node-tags">
+                <span class="mini-tag">100% Pod Power</span>
+              </div>
+            </div>
+
+            <div class="node-card ending" onclick="openModal('r8_miracle')">
+              <div class="node-type-tag"><span>ENDING 2</span> <span>BEST</span></div>
+              <div class="node-title">✨ ۱۱. معجزه فرود (Miracle Escape)</div>
+              <div class="node-desc">فرود با نیم‌توان و انتقال آمارا به کپسول‌ها. نیازمند Bond >= 5 & Hull >= 6 (یا pods_ready).</div>
+              <div class="node-tags">
+                <span class="mini-tag">Bond >= 5</span>
+                <span class="mini-tag">Symbiosis</span>
+              </div>
+            </div>
+
+            <div class="node-card ending-bad" onclick="openModal('r8_burn')">
+              <div class="node-type-tag"><span>ENDING 3</span> <span>FAILURE</span></div>
+              <div class="node-title">💥 ۱۲. آسمان سوزان (Burning Sky)</div>
+              <div class="node-desc">تلاش برای نجات آمارا بدون منابع کافی. سوختن کپسول‌ها در جو؛ تنها یک کودک زنده می‌ماند.</div>
+              <div class="node-tags">
+                <span class="mini-tag">Failed Req</span>
+              </div>
+            </div>
+
+            <div class="node-card puzzle" onclick="openModal('r8_phoenix')">
+              <div class="node-type-tag"><span>ENDING 4</span> <span>SECRET</span></div>
+              <div class="node-title">🔮 ۱۳. تعالی ققنوس (Phoenix Protocol)</div>
+              <div class="node-desc">پایان مخفی: نیازمند pods_ready + ai_bonded + Morale >= 8. سفینه و آمارا به آگاهی ارگانیک جدید تبدیل می‌شوند.</div>
+              <div class="node-tags">
+                <span class="mini-tag">Secret Ending</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DETAILED STORY LIST -->
+    <div class="section-title">
+      📄 جزئیات کامل سناریوها، عواقب و پرچم‌های متغیر (Full Node Specifications)
+    </div>
+
+    <div class="story-nodes-grid" id="storyGrid">
+
+      <!-- NODE 1 -->
+      <div class="detail-card" data-stage="early" id="card_r1_hull">
+        <div class="detail-card-header">
+          <div class="detail-title-group">
+            <h3>۱. شکاف در عرشه شماره چهار (Hull Breach on Deck 4)</h3>
+            <span>بخش: Engineering | دور ۱</span>
+          </div>
+          <div class="stat-deltas">
+            <span class="delta-badge pos">Hull +2 / Morale -3 (گزینه A)</span>
+            <span class="delta-badge neg">Hull -2 / Morale +2 (گزینه B)</span>
+          </div>
+        </div>
+        <div class="narrative-box">
+          بارانی از ریزشهاب‌سنگ‌ها شکافی عمیق در عرشه چهار ایجاد کرده است. دو دکل‌بند هنوز در بخش افت‌فشار محبوس هستند و فریادهایشان از بیسیم شنیده می‌شود. بستن بلافاصله دیواره‌ها عرشه را نجات می‌دهد اما مرگ آن‌ها را حتمی می‌سازد.
+        </div>
+        <div class="options-grid">
+          <div class="option-box">
+            <div class="option-title">گزینه الف: مسدودسازی سریع دیواره‌ها</div>
+            <div class="option-desc">بقای سفینه در اولویت است. دیواره‌ها بسته می‌شوند و بی‌سیم خاموش می‌گردد. امشب هیچ‌کس به چشمان دیگری نگاه نمی‌کند.</div>
+            <div class="stat-deltas">
+              <span class="delta-badge pos">Hull +2</span>
+              <span class="delta-badge neg">Morale -3</span>
+            </div>
+          </div>
+          <div class="option-box">
+            <div class="option-title">گزینه ب: باز نگه داشتن دیواره‌ها تا تخلیه</div>
+            <div class="option-desc">هر دو دکل‌بند نجات یافتند. عرشه چهار آسیب دید اما خدمه دیدند که شما جان آن‌ها را انتخاب کردید.</div>
+            <div class="stat-deltas">
+              <span class="delta-badge neg">Hull -2</span>
+              <span class="delta-badge neg">Oxygen -1</span>
+              <span class="delta-badge pos">Morale +2</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NODE 2 -->
+      <div class="detail-card" data-stage="early" id="card_r1_riot">
+        <div class="detail-card-header">
+          <div class="detail-title-group">
+            <h3>۲. شورش در انبار کالا (Cargo Bay Riot)</h3>
+            <span>بخش: Cargo Bay | دور ۱-۲</span>
+          </div>
+          <div class="stat-deltas">
+            <span class="delta-badge neg">Morale -3 / Oxygen +1 (گزینه A)</span>
+            <span class="delta-badge pos">Morale +3 / Oxygen -2 (گزینه B)</span>
+          </div>
+        </div>
+        <div class="narrative-box">
+          کاهش سهمیه غذایی باعث اعتراض شدیدی شده است. گروهی از خدمه در انبار کالا سنگربندی کرده و صندوق‌های جیره را شکسته‌اند. سربازان منتظر دستور سرکوب هستند.
+        </div>
+        <div class="options-grid">
+          <div class="option-box">
+            <div class="option-title">گزینه الف: اعزام سربازان و سرکوب مسلحانه</div>
+            <div class="option-desc">انبار ظرف بیست دقیقه بازپس گرفته شد اما چیزی شکسته شد که با باتوم قابل ترمیم نیست.</div>
+            <div class="flag-notice">⚠️ پرچم ثبت شده: martial_law = true ➔ باز شدن پاکت ۰۳ (حکومت نظامی)</div>
+          </div>
+          <div class="option-box">
+            <div class="option-title">گزینه ب: بازگرداندن سهمیه کامل و مذاکره</div>
+            <div class="option-desc">معترضان متفرق شدند، سیر اما خجل. مخازن ذخیره کمی خالی‌تر شدند.</div>
+            <div class="stat-deltas">
+              <span class="delta-badge pos">Morale +3</span>
+              <span class="delta-badge neg">Oxygen -2</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NODE 3 (PUZZLE 1) -->
+      <div class="detail-card" data-stage="mid" id="card_r3_puzzle">
+        <div class="detail-card-header">
+          <div class="detail-title-group">
+            <h3>🔒 ۵. پازل آشیانه کپسول‌ها (Pod Bay Security Lock)</h3>
+            <span>بخش: Pod Bay | دور ۳ (System Lockout)</span>
+          </div>
+          <div class="stat-deltas">
+            <span class="delta-badge pos">فتح پاکت ۱۲ (Pods Charged)</span>
+            <span class="delta-badge neg">Bypass: Hull -2 / Morale -1</span>
+          </div>
+        </div>
+        <div class="narrative-box">
+          در اواسط دور، تمام دیواره‌های آشیانه کپسول‌ها بسته شدند. یک قفل هوشمند قديمي کد بای‌پاس می‌طلبد. روند بحران تعلیق شده و سرنخ‌ها بین خدمه تقسیم شده‌اند.
+        </div>
+        <div class="puzzle-breakdown">
+          <h4>🧩 جزییات پازل تصویری و کدی ORPHEUS:</h4>
+          <p style="font-size: 0.85rem; color: #e5e7eb;">
+            پاسخ پازل عبارت ۷ حرفی <strong>ORPHEUS</strong> است. سرنخ‌ها به شرح زیر ناهمگون توزیع شده‌اند:
+          </p>
+          <ul class="clue-list">
+            <li>🔑 سرنخ ۱ (تکنسین): "حک شده کنار در آشیانه: PROJECT O——— · ad astra per amorem."</li>
+            <li>🔑 سرنخ ۲ (فرمانده): "کد بای‌پاس همان اسطوره مردی است که برای بازگرداندن معشوقش به جهان زیرین رفت."</li>
+            <li>🔑 سرنخ ۳ (مهندس): "کد ۷ حرف انگلیسی با حروف بزرگ است که با OR شروع می‌شود."</li>
+          </ul>
+          <div class="flag-notice" style="margin-top: 1rem;">
+            ✨ پیامد حل موفق: ثبت برچم pods_ready = true ➔ کاهش نیاز بدنه در دور final از ۶ به ۴.
+          </div>
+        </div>
+      </div>
+
+      <!-- NODE 4 (PLOT TWIST & PUZZLE 2) -->
+      <div class="detail-card" data-stage="climax" id="card_r7_firewall">
+        <div class="detail-card-header">
+          <div class="detail-title-group">
+            <h3>📜 ۹. پازل دیوار آتش آمارا و شاه‌پلات‌تویست (Amara's Firewall & The Great Reveal)</h3>
+            <span>بخش: AI Core | دور ۷ (System Lockout)</span>
+          </div>
+          <div class="stat-deltas">
+            <span class="delta-badge pos">فتح پاکت ۱۹ (افشای راز آمارا)</span>
+          </div>
+        </div>
+        <div class="narrative-box">
+          پشت دریچه سرورهای اصلی، دیوار آتشی محکم قرار دارد که عبارت رمز انسانی می‌خواهد. با حل عبارت <strong>LULLABY</strong>، فایل صوتی اصلی افشا می‌شود.
+        </div>
+        <div class="puzzle-breakdown">
+          <h4>📜 متن پلات‌تویست بزرگ (The Grand Twist Reveal):</h4>
+          <p style="font-size: 0.85rem; color: #fcee0a; line-height: 1.8;">
+            "گزارش نهایی پروژه... پزشکان گفتند آمارا شش هفته زنده می‌ماند. آپلود به او ابدیت بخشید. او کپی نیست؛ خودش است. دختر من اکنون خودِ این سفینه است. نام H.O.P.E. یک اختصار فنی نبود. این آخرین جمله‌ام بود: Hold On, Please — Everyone (دوام بیاورید، لطفاً — همگی). مواظبش باشید."
+          </p>
+          <div class="flag-notice" style="margin-top: 1rem;">
+            ⚠️ این افشاگری درک بازیکنان را از هوش مصنوعی تغییر داده و انتخاب بین گزینه الف (پاکسازی) و گزینه ب (نجات آمارا) را اخلاقاً پیچیده می‌سازد.
+          </div>
+        </div>
+      </div>
+
+      <!-- NODE 5 (ENDINGS MATRIX) -->
+      <div class="detail-card" data-stage="climax" id="card_endings">
+        <div class="detail-card-header">
+          <div class="detail-title-group">
+            <h3>🏁 جدول ماتریس پایان‌های ۵ گانه سفینه H.O.P.E.</h3>
+            <span>دور ۸ — سرنوشت نهایی</span>
+          </div>
+        </div>
+        
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th>کد پایان</th>
+              <th>نام پایان</th>
+              <th>نوع / وضعیت</th>
+              <th>شروط لازم (Conditions)</th>
+              <th>پیامد داستانی</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color: var(--emerald); font-weight: 800;">E-01</td>
+              <td>خروج سرد (Purge Escape)</td>
+              <td>نجات انسان‌ها</td>
+              <td>انتخاب گزینه الف (پاکسازی سرور آمارا)</td>
+              <td>پاکسازی ۱۱ ثانیه طول کشید. کپسول‌ها با ۱۰۰٪ توان فرود آمدند. آمارا نابود شد و انسان‌ها یادبودی صوتی برای او ساختند.</td>
+            </tr>
+            <tr>
+              <td style="color: var(--cyan); font-weight: 800;">E-02</td>
+              <td>معجزه فرود (Miracle Escape)</td>
+              <td>پایان طلایی (Best)</td>
+              <td>انتخاب گزینه ب + (Bond >= 5 و Hull >= 6 یا Hull >= 4 با pods_ready)</td>
+              <td>آمارا روی نه کپسول توزیع شده و همه را به سلامت فرود می‌آورد. او اکنون تمام تولدهای سیاره جدید را تماشا می‌کند.</td>
+            </tr>
+            <tr>
+              <td style="color: var(--rose); font-weight: 800;">E-03</td>
+              <td>آسمان سوزان (Burning Sky)</td>
+              <td>فاجعه سقوط</td>
+              <td>انتخاب گزینه ب + عدم برآورده شدن شروط منابع</td>
+              <td>کپسول‌ها در جو می‌سوزند. آمارا تمام توان را صرف سپر یک کپسول کرد؛ تنها یک کودک زنده می‌ماند.</td>
+            </tr>
+            <tr>
+              <td style="color: var(--purple); font-weight: 800;">E-04</td>
+              <td>تعالی ققنوس (Phoenix Protocol)</td>
+              <td>پایان مخفی (Secret)</td>
+              <td>pods_ready + ai_bonded + Morale >= 8</td>
+              <td>سفینه و آمارا به یک آگاهی ارگانیک جدید تبدیل شده و در فضا باقی می‌مانند؛ نیازی به فرود روی سیاره نیست.</td>
+            </tr>
+            <tr>
+              <td style="color: var(--amber); font-weight: 800;">E-05</td>
+              <td>مرگ پیش از موعد (Catastrophe)</td>
+              <td>شکست کامل</td>
+              <td>به صفر رسیدن اکسیژن، بدنه یا روحیه در هر دور</td>
+              <td>نابودی سفینه به دلیل خفگی، متلاشی شدن سازه یا شورش خونین پیش از رسیدن به مقصد.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- MODAL / DRAWER FOR DETAILED VIEW -->
+  <div class="modal-backdrop" id="detailModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div id="modalBody">
+        <!-- Content dynamically injected -->
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>H.O.P.E. — Interactive Story Tree & Mind Map Specification | طراحی شده برای استفاده تجربی و تحلیل در NotebookLM</p>
+  </footer>
+
+  <script>
+    // Search Functionality
+    function handleSearch() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const cards = document.querySelectorAll('.detail-card');
+      const nodeCards = document.querySelectorAll('.node-card');
+
+      cards.forEach(c => {
+        const text = c.innerText.toLowerCase();
+        c.style.display = text.includes(q) ? 'block' : 'none';
+      });
+
+      nodeCards.forEach(n => {
+        const text = n.innerText.toLowerCase();
+        n.style.opacity = text.includes(q) ? '1' : '0.2';
+      });
+    }
+
+    // Filter by Stage
+    function filterStage(stage) {
+      const stages = document.querySelectorAll('.tree-stage');
+      const cards = document.querySelectorAll('.detail-card');
+
+      stages.forEach(s => {
+        if (stage === 'all' || s.getAttribute('data-stage') === stage) {
+          s.style.display = 'flex';
+        } else {
+          s.style.display = 'none';
+        }
+      });
+
+      cards.forEach(c => {
+        if (stage === 'all' || c.getAttribute('data-stage') === stage) {
+          c.style.display = 'block';
+        } else {
+          c.style.display = 'none';
+        }
+      });
+    }
+
+    // Filter by Category
+    function filterCategory(cat) {
+      const cards = document.querySelectorAll('.detail-card');
+      const nodes = document.querySelectorAll('.node-card');
+
+      nodes.forEach(n => {
+        if (n.classList.contains(cat)) {
+          n.style.opacity = '1';
+          n.style.borderWidth = '2px';
+        } else {
+          n.style.opacity = '0.3';
+          n.style.borderWidth = '1px';
+        }
+      });
+    }
+
+    // Modal Control
+    function openModal(id) {
+      const card = document.getElementById('card_' + id) || document.getElementById('card_r1_hull');
+      const modal = document.getElementById('detailModal');
+      const body = document.getElementById('modalBody');
+
+      body.innerHTML = card.innerHTML;
+      modal.classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('detailModal').classList.remove('open');
+    }
+
+    function openEndingsModal() {
+      openModal('endings');
+    }
+
+    // Close modal on escape
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+  </script>
+</body>
+</html>

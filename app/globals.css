@@ -137,6 +137,119 @@
   }
 }
 
+/* Cyberpunk Red / Classified Frame Corners */
+@utility frame-corners-red {
+  position: relative;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  box-shadow: 0 4px 25px rgba(239, 68, 68, 0.15), inset 0 0 20px rgba(239, 68, 68, 0.05);
+  
+  &::after {
+    --fc: #EF4444;
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: linear-gradient(var(--fc), var(--fc)),
+      linear-gradient(var(--fc), var(--fc)),
+      linear-gradient(var(--fc), var(--fc)),
+      linear-gradient(var(--fc), var(--fc)),
+      linear-gradient(var(--fc), var(--fc)),
+      linear-gradient(var(--fc), var(--fc)),
+      linear-gradient(var(--fc), var(--fc)),
+      linear-gradient(var(--fc), var(--fc));
+    background-repeat: no-repeat;
+    background-size:
+      14px 2px,
+      2px 14px,
+      14px 2px,
+      2px 14px,
+      14px 2px,
+      2px 14px,
+      14px 2px,
+      2px 14px;
+    background-position:
+      top left,
+      top left,
+      top right,
+      top right,
+      bottom left,
+      bottom left,
+      bottom right,
+      bottom right;
+    opacity: 0.95;
+  }
+}
+
+/* Cyberpunk Gold / Inventory Frame Corners */
+@utility frame-corners-gold {
+  position: relative;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  box-shadow: 0 4px 25px rgba(245, 158, 11, 0.15), inset 0 0 20px rgba(245, 158, 11, 0.05);
+  
+  &::after {
+    --fc: #F59E0B;
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: linear-gradient(var(--fc), var(--fc)),
+      linear-gradient(var(--fc), var(--fc)),
+      linear-gradient(var(--fc), var(--fc)),
+      linear-gradient(var(--fc), var(--fc)),
+      linear-gradient(var(--fc), var(--fc)),
+      linear-gradient(var(--fc), var(--fc)),
+      linear-gradient(var(--fc), var(--fc)),
+      linear-gradient(var(--fc), var(--fc));
+    background-repeat: no-repeat;
+    background-size:
+      14px 2px,
+      2px 14px,
+      14px 2px,
+      2px 14px,
+      14px 2px,
+      2px 14px,
+      14px 2px,
+      2px 14px;
+    background-position:
+      top left,
+      top left,
+      top right,
+      top right,
+      bottom left,
+      bottom left,
+      bottom right,
+      bottom right;
+    opacity: 0.95;
+  }
+}
+
+/* Custom Cyberpunk Crimson Red Scrollbar */
+@utility scrollbar-cyber-red {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: rgba(11, 17, 23, 0.85);
+    border-left: 1px solid rgba(239, 68, 68, 0.2);
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #EF4444;
+    border-radius: 2px;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.85);
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #F87171;
+    box-shadow: 0 0 14px rgba(239, 68, 68, 1);
+  }
+  scrollbar-width: thin;
+  scrollbar-color: #EF4444 rgba(11, 17, 23, 0.85);
+}
+
 @utility cp-cut {
   clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
 }
@@ -147,6 +260,25 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    scrollbar-width: thin;
+    scrollbar-color: #EF4444 rgba(11, 17, 23, 0.85);
+  }
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  *::-webkit-scrollbar-track {
+    background: rgba(11, 17, 23, 0.85);
+    border-left: 1px solid rgba(239, 68, 68, 0.2);
+  }
+  *::-webkit-scrollbar-thumb {
+    background: #EF4444;
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.7);
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: #F87171;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 1);
   }
   body {
     @apply bg-background text-foreground;

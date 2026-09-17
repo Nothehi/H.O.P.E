@@ -78,6 +78,7 @@ export function createLobbyState(chronicle: Chronicle): GameState {
     officerSeat: 0,
     seats: [],
     resources: startResources(),
+    flags: {},
     deck: [],
     currentCardId: null,
     peekDone: false,
@@ -216,6 +217,7 @@ function startVoyage(state: GameState) {
   state.deck = shuffle(pool);
 
   state.resources = startResources();
+  state.flags = {};
   for (const sticker of chronicle.stickers) {
     if (
       sticker.maxDelta &&
@@ -302,6 +304,10 @@ function applyEffects(
   if (effects.hull) clampResource(state, "hull", effects.hull);
   if (effects.morale) clampResource(state, "morale", effects.morale);
   if (effects.bond) clampResource(state, "bond", effects.bond);
+  if (effects.flagSet) {
+    state.flags[effects.flagSet.key] = effects.flagSet.value;
+    notes.push(`State Flag set: ${effects.flagSet.key} = ${effects.flagSet.value}`);
+  }
   if (effects.sticker) placeSticker(state, effects.sticker, notes);
   if (effects.envelope) openEnvelope(state, effects.envelope, notes);
 }
@@ -370,7 +376,30 @@ function resolveDilemma(state: GameState) {
     notes.push("No one championed the winning side. The ledger line stays blank.");
   }
 
-  const effects = winner === "A" ? card.effectsA : card.effectsB;
+  let effects = winner === "A" ? card.effectsA : card.effectsB;
+
+  // Special card dynamic resolution hooks:
+  if (card.id === "solar-storm" && winner === "B") {
+    // 30% failure risk for Vahid Kazemi's extravehicular calibration
+    const failed = Math.random() < 0.3;
+    if (failed) {
+      effects = {
+        hull: -3,
+        morale: -2,
+        sticker: {
+          id: "st-cazemi-grounded",
+          label: "کاظمیِ زمین‌گیر",
+          positive: false,
+          target: "Bridge",
+        },
+        aftermath:
+          "طوفان پیش‌بینی‌ناپذیر آنتن را متلاشی کرد؛ وحید کاظمی با سوختگی درجه دو به درمانگاه منتقل شد و آنتن هم از دست رفت. او تا پایان کمپین دیگر داوطلب هیچ کاری نخواهد شد.",
+      };
+      notes.push(
+        "شکست عملیات پرریسک بیرونی (۳۰٪ احتمال خطا): وحید کاظمی دچار سوختگی شدید شد و برچسب «کاظمیِ زمین‌گیر» ثبت گردید.",
+      );
+    }
+  }
 
   // The final dilemma resolves into an ending instead of a next round.
   if (card.id === FINAL_CARD_ID) {
@@ -387,14 +416,29 @@ function resolveDilemma(state: GameState) {
     if (winner === "A") {
       endGame(state, "purge-escape");
     } else {
-      const hullReq = hasSticker(state, "st-pods-charged")
+      let hullReq: number = hasSticker(state, "st-pods-charged")
         ? MIRACLE_REQ.hull - 2
         : MIRACLE_REQ.hull;
+      if (hasSticker(state, "st-trust-engineer")) {
+        hullReq = Math.max(1, hullReq - 1);
+        notes.push("مهندس ارشد به پاس اعتمادی که در مانور قبلی به او داشتید، با تنظیم بهینه سازه، نیاز بدنه فرود را ۱ واحد کاهش داد.");
+      }
+      let oxyReq: number = MIRACLE_REQ.oxygen;
+      if (hasSticker(state, "st-trust-pilot")) {
+        oxyReq = Math.max(1, oxyReq - 1);
+        notes.push("خلبان باتجربه به پاس اعتمادی که به او داشتید، شخصاً سکان کپسول‌ها را گرفت و با مانور سرشی مصرف اکسیژن را ۱ واحد کاهش داد.");
+      }
+      if (hasSticker(state, "st-cazemi-grounded")) {
+        notes.push("وحید کاظمی به دلیل سوختگی و انزوای گذشته نتوانست در مهار نوسان موتورها کمکی کند.");
+      }
+      if (hasSticker(state, "st-whistleblower-source")) {
+        notes.push("شبکه سوت‌زنی مهندسی، افت فشار پنهان سرور آمارا را ۳ دقیقه زودتر هشدار داد.");
+      }
       const r = state.resources;
       const ok =
         r.bond >= MIRACLE_REQ.bond &&
         r.hull >= hullReq &&
-        r.oxygen >= MIRACLE_REQ.oxygen;
+        r.oxygen >= oxyReq;
       if (hasSticker(state, "st-pods-charged")) {
         notes.push("The pre-charged pods lower the strain of the half-power burn.");
       }
@@ -478,6 +522,13 @@ function failPuzzle(state: GameState, notes: string[]) {
     notes.push(
       "The lock's countermeasures win. Cutting through the bulkheads costs 2 Hull and 1 Morale — and the pods stay sealed.",
     );
+  } else if (puzzle.puzzleId === "reactor6") {
+    clampResource(state, "hull", -2);
+    clampResource(state, "oxygen", -2);
+    notes.push(
+      "The reactor coolant stabilization failed. Manual emergency vents cost 2 Hull and 2 Oxygen.",
+    );
+    openEnvelope(state, PUZZLE_ENVELOPE.reactor6, notes);
   } else {
     // The firewall is torched open: the truth comes out, but burned.
     clampResource(state, "hull", -2);
@@ -486,7 +537,7 @@ function failPuzzle(state: GameState, notes: string[]) {
     notes.push(
       "The Technician burns the firewall open by force. 2 Hull, 2 Morale and 2 Bond are lost — parts of her memory archive go with it.",
     );
-    openEnvelope(state, PUZZLE_ENVELOPE.firewall7, notes);
+    openEnvelope(state, PUZZLE_ENVELOPE.firewall9, notes);
   }
   checkCatastrophe(state);
 }
@@ -636,6 +687,17 @@ export function applyAction(
       break;
     }
 
+    case "puzzle-interact": {
+      if (state.stage !== "playing" || state.phase !== "puzzle" || !state.puzzle)
+        return prev;
+      if (!seatOf(state, playerId)) return prev;
+      state.puzzle.interactiveData = {
+        ...(state.puzzle.interactiveData || {}),
+        ...action.data,
+      };
+      break;
+    }
+
     case "guess": {
       if (state.stage !== "playing" || state.phase !== "puzzle") return prev;
       const puzzle = state.puzzle;
@@ -653,7 +715,7 @@ export function applyAction(
         const notes: string[] = [
           `${seat.name} cracks the ${def.title} — +3 hero points.`,
         ];
-        if (puzzle.puzzleId === "firewall7") clampResource(state, "bond", 2);
+        if (puzzle.puzzleId === "firewall9") clampResource(state, "bond", 2);
         openEnvelope(state, PUZZLE_ENVELOPE[puzzle.puzzleId], notes);
         state.lastResolution = {
           cardId: def.id,

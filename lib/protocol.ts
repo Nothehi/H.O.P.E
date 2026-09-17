@@ -66,8 +66,19 @@ export function generateRoomId(length = 6): string {
   return id;
 }
 
+export function toEnglishDigits(str: string): string {
+  const persian = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
+  const arabic = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+  let out = str;
+  for (let i = 0; i < 10; i++) {
+    out = out.replaceAll(persian[i], String(i)).replaceAll(arabic[i], String(i));
+  }
+  return out;
+}
+
 export function normalizeRoomId(raw: string): string {
-  return raw.trim().toLowerCase().replace(/[^a-z0-9-]/g, "");
+  const withEnglish = toEnglishDigits(raw);
+  return withEnglish.trim().toLowerCase().replace(/[^a-z0-9-]/g, "");
 }
 
 export function isValidRoomId(id: string): boolean {

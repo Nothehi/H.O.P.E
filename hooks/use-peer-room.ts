@@ -46,6 +46,15 @@ interface PeerEntry {
   lastSeen: number;
 }
 
+function safeReconnect(peer: Peer | null | undefined) {
+  if (!peer || peer.destroyed || !peer.disconnected) return;
+  try {
+    peer.reconnect();
+  } catch (err) {
+    console.warn("Peer safeReconnect failed:", err);
+  }
+}
+
 /**
  * Owns the entire PeerJS lifecycle for one room membership: the mesh peer,
  * the beacon (when this client hosts or inherits the room), heartbeats, and
@@ -81,6 +90,7 @@ export function usePeerRoom(
     let disposed = false;
     let heartbeat: ReturnType<typeof setInterval> | null = null;
     let claimTimer: ReturnType<typeof setTimeout> | null = null;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
     const entries = entriesRef.current;
 
     const emit = (event: RoomEvent) => onEventRef.current?.(event);
@@ -289,7 +299,9 @@ export function usePeerRoom(
           setTimeout(() => conn.close(), 2_000);
         });
       });
-      beacon.on("disconnected", () => beacon.reconnect());
+      beacon.on("disconnected", () => {
+        if (!disposed) safeReconnect(beacon);
+      });
     };
 
     const start = async () => {
@@ -327,9 +339,19 @@ export function usePeerRoom(
         });
       };
 
+      let joined = false;
+
       self.on("open", (id) => {
         if (disposed) return;
         setSelfId(id);
+
+        if (joined) {
+          // Reconnection to signaling broker succeeded; clear any transient errors.
+          setError(null);
+          setStatus("connected");
+          return;
+        }
+        joined = true;
 
         if (create) {
           const beacon = new PeerCtor(beaconId(roomId), options);
@@ -359,14 +381,14 @@ export function usePeerRoom(
       self.on("disconnected", () => {
         // Lost the signaling broker; mesh connections keep working, but
         // reconnect so new peers can still find us.
-        if (!disposed && !self.destroyed) self.reconnect();
+        if (!disposed) safeReconnect(self);
       });
 
       self.on("error", (err) => {
         if (err.type === "peer-unavailable") {
           // PeerJS reports unreachable peers on the Peer, not the connection.
           if (String(err.message).includes(beaconId(roomId))) {
-            fail("Room not found. Check the room ID — it may have been closed.");
+            fail("سفینه پیدا نشد. لطفاً کد سفینه را بررسی کنید یا مطمئن شوید میزبان آنلاین است.");
           }
           // Otherwise a mesh dial failed (peer left between intro and dial);
           // the heartbeat sweep cleans up the stale entry.
@@ -378,17 +400,23 @@ export function usePeerRoom(
           err.type === "socket-error" ||
           err.type === "socket-closed"
         ) {
-          fail("Lost connection to the signaling server. Retrying…");
-          setTimeout(() => {
+          fail("خطا در برقراری ارتباط وب‌سوکت با سرور سیگنالینگ. در شبکه محلی (LAN)، مطمئن شوید سرور سیگنالینگ محلی (pnpm run peer) در حال اجراست.");
+          if (reconnectTimer) clearTimeout(reconnectTimer);
+          reconnectTimer = setTimeout(() => {
             if (!disposed && !self.destroyed) {
-              self.reconnect();
-              setError(null);
-              setStatus("connected");
+              safeReconnect(self);
+              if (beaconRef.current) {
+                safeReconnect(beaconRef.current);
+              }
+              if (!self.disconnected) {
+                setError(null);
+                setStatus("connected");
+              }
             }
           }, 3_000);
           return;
         }
-        fail(`Connection error: ${err.type}`);
+        fail(`خطای ارتباط شبکه: ${err.type}`);
       });
 
       heartbeat = setInterval(() => {
@@ -414,6 +442,7 @@ export function usePeerRoom(
 
     return () => {
       disposed = true;
+      if (reconnectTimer) clearTimeout(reconnectTimer);
       if (heartbeat) clearInterval(heartbeat);
       if (claimTimer) clearTimeout(claimTimer);
       for (const entry of entries.values()) entry.conn.close();

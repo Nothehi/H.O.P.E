@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, LogIn } from "lucide-react";
+import { Plus, LogIn, Wifi } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,8 @@ import {
   isValidRoomId,
   normalizeRoomId,
 } from "@/lib/protocol";
+import { RoomCodeInput } from "@/components/game/room-code-input";
+import { NetworkSettingsDialog } from "@/components/game/network-settings-dialog";
 
 export default function Home() {
   const router = useRouter();
@@ -41,7 +43,15 @@ export default function Home() {
     setBusy(true);
     sessionStorage.setItem("wt-name", displayName);
     if (create) sessionStorage.setItem(`wt-create:${roomId}`, "1");
-    router.push(`/room?id=${encodeURIComponent(roomId)}`);
+    
+    // Smooth navigation with fallback for mobile browsers
+    const targetUrl = `/room?id=${encodeURIComponent(roomId)}`;
+    try {
+      router.push(targetUrl);
+    } catch {
+      window.location.href = targetUrl;
+    }
+    setTimeout(() => setBusy(false), 4000);
   };
 
   const handleCreate = () => enterRoom(generateRoomId(), true);
@@ -49,7 +59,7 @@ export default function Home() {
   const handleJoin = () => {
     const roomId = normalizeRoomId(roomInput);
     if (!isValidRoomId(roomId)) {
-      toast.error("کد سفینه باید بین ۴ تا ۳۲ حرف، عدد یا خط تیره باشد.");
+      toast.error("کد سفینه باید بین ۴ تا ۳۲ حرف یا عدد باشد.");
       return;
     }
     enterRoom(roomId, false);
@@ -108,17 +118,49 @@ export default function Home() {
             <Separator className="flex-1" />
           </div>
 
-          <div className="flex gap-2">
-            <Input
-              placeholder="کد اختصاصی سفینه"
-              value={roomInput}
-              onChange={(e) => setRoomInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleJoin()}
-            />
-            <Button variant="secondary" onClick={handleJoin} disabled={busy}>
-              <LogIn className="size-4 ml-1" />
-              ورود
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground block text-right">
+                کد اختصاصی ۶ حرفی سفینه:
+              </label>
+              <div className="py-2">
+                <RoomCodeInput
+                  value={roomInput}
+                  onChange={setRoomInput}
+                  onEnter={handleJoin}
+                  disabled={busy}
+                />
+              </div>
+            </div>
+
+            <Button
+              variant="secondary"
+              className="w-full gap-2 font-bold"
+              size="lg"
+              onClick={handleJoin}
+              disabled={busy || roomInput.trim().length < 4}
+            >
+              <LogIn className="size-4" />
+              ورود به سفینه
             </Button>
+          </div>
+
+          <div className="flex items-center justify-between pt-2 border-t border-border/50 text-xs">
+            <NetworkSettingsDialog
+              trigger={
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-[11px] gap-1.5 text-muted-foreground hover:text-cyan-400 px-2"
+                >
+                  <Wifi className="size-3" />
+                  تنظیمات شبکه و سیگنالینگ
+                </Button>
+              }
+            />
+            <span className="text-[10px] text-muted-foreground font-mono">
+              H.O.P.E. v2.0 · LAN & P2P
+            </span>
           </div>
         </CardContent>
       </Card>

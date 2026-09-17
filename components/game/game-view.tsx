@@ -4,31 +4,39 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
+  Backpack,
   Check,
   Copy,
   Crown,
-  Eye,
   Loader2,
   LogOut,
+  Radio,
+  Settings,
   Users,
+  Wifi,
+  WifiOff,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useGame } from "@/hooks/use-game";
 import type { RoomEvent } from "@/hooks/use-peer-room";
-import { AGENDAS, CARDS, CLUES } from "@/lib/game/content";
+import { CARDS } from "@/lib/game/content";
 import { FINAL_ROUND, type GameState, type Seat } from "@/lib/game/types";
 import { ShipBoard } from "./board";
 import { Comms } from "./comms";
 import { DilemmaPanel } from "./dilemma";
 import { EndingPanel } from "./ending";
+import { HudMinimap } from "./hud-minimap";
 import { Lobby } from "./lobby";
 import { PuzzlePanel } from "./puzzle";
 import { ROLE_META } from "./meta";
+import { ClassifiedDossierDialog } from "./classified-dossier-dialog";
+import { InventoryDialog } from "./inventory-dialog";
+import { NetworkSettingsDialog } from "./network-settings-dialog";
+import { soundFx } from "@/lib/game/audio";
 
 function SeatRow({ seat, isOfficer }: { seat: Seat; isOfficer: boolean }) {
   const meta = seat.role ? ROLE_META[seat.role] : null;
@@ -45,7 +53,7 @@ function SeatRow({ seat, isOfficer }: { seat: Seat; isOfficer: boolean }) {
         }`}
       />
       {Icon ? (
-        <Icon className="size-4 shrink-0 text-muted-foreground" />
+        <Icon className="size-4 shrink-0 text-primary" />
       ) : (
         <span className="size-4 shrink-0" />
       )}
@@ -70,12 +78,13 @@ function SeatRow({ seat, isOfficer }: { seat: Seat; isOfficer: boolean }) {
 function CrewPanel({
   game,
   selfId,
+  onOpenInventory,
 }: {
   game: GameState;
   selfId: string | null;
+  onOpenInventory: () => void;
 }) {
   const mySeat = game.seats.find((s) => s.playerId === selfId);
-  const agenda = mySeat?.agendaId ? AGENDAS[mySeat.agendaId] : null;
   return (
     <div className="flex h-full min-h-0 flex-col" dir="rtl">
       <ScrollArea className="flex-1 px-2 py-2">
@@ -87,53 +96,24 @@ function CrewPanel({
           />
         ))}
         {mySeat && game.stage !== "lobby" && (
-          <div className="mt-4 px-2">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="w-full border-dashed border-primary/40 text-primary hover:bg-primary/10 hover:text-primary">
-                  <Eye className="size-4 ml-2" />
-                  مشاهده پرونده محرمانه
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md border-primary/20" dir="rtl">
-                <DialogHeader>
-                  <DialogTitle className="text-primary flex items-center gap-2 text-xl font-black tracking-wide">
-                    <Eye className="size-5" />
-                    پرونده محرمانه شما
-                  </DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 py-2 text-right">
-                  <p className="text-sm text-muted-foreground font-semibold">
-                    این اطلاعات کاملاً مخفی هستند و نباید مستقیماً به سایر خدمه نشان داده شوند.
-                  </p>
-                  
-                  {agenda && (
-                    <div className="rounded-none border border-primary/20 bg-primary/5 p-4 space-y-2">
-                      <p className="font-bold text-base text-foreground">
-                        {agenda.title}{" "}
-                        <span className="text-primary/80 text-sm font-normal">
-                          (+{agenda.points} امتیاز)
-                        </span>
-                      </p>
-                      <p className="text-sm text-muted-foreground leading-relaxed font-mono">{agenda.description}</p>
-                    </div>
-                  )}
-                  
-                  {mySeat.clueIds && mySeat.clueIds.length > 0 && (
-                    <div className="space-y-3 rounded-none border border-secondary-foreground/20 bg-secondary/20 p-4">
-                      <p className="font-bold text-sm text-secondary-foreground mb-2 border-b border-secondary-foreground/20 pb-2">
-                        مدارک و شواهد:
-                      </p>
-                      {mySeat.clueIds.map((id) => (
-                        <p key={id} className="text-sm leading-relaxed italic text-secondary-foreground font-mono">
-                          🔑 {CLUES[id]?.text}
-                        </p>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </DialogContent>
-            </Dialog>
+          <div className="mt-4 px-2 space-y-2">
+            <ClassifiedDossierDialog game={game} selfId={selfId} />
+            <Button
+              variant="outline"
+              className="w-full border-amber-500/50 bg-amber-950/25 text-amber-400 hover:bg-amber-900/35 hover:text-amber-200 hover:border-amber-400 font-bold transition-all flex items-center justify-between shadow-[0_0_15px_rgba(245,158,11,0.15)]"
+              onClick={onOpenInventory}
+            >
+              <span className="flex items-center gap-2">
+                <Backpack className="size-4 text-amber-500" />
+                کوله‌پشتی و یادداشت‌ها
+              </span>
+              <Badge
+                variant="outline"
+                className="font-mono text-[10px] text-amber-300 border-amber-500/40 px-1 py-0"
+              >
+                کلید [ I ]
+              </Badge>
+            </Button>
           </div>
         )}
       </ScrollArea>
@@ -154,8 +134,36 @@ export function GameView({
   const [copied, setCopied] = useState(false);
   const [showSide, setShowSide] = useState(false);
   const [sideTab, setSideTab] = useState("crew");
+  const [inventoryOpen, setInventoryOpen] = useState(false);
   // How many messages have been seen; the Comms tab being open marks all read.
   const [readCount, setReadCount] = useState(0);
+
+  // Global keyboard shortcut: Pressing 'i' or 'I' (or KeyI) opens/toggles the Inventory
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      if (e.key === "i" || e.key === "I" || e.code === "KeyI") {
+        e.preventDefault();
+        setInventoryOpen((prev) => {
+          const next = !prev;
+          if (next) soundFx.playInventoryOpen();
+          return next;
+        });
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const onEvent = useCallback((event: RoomEvent) => {
     switch (event.kind) {
@@ -207,6 +215,8 @@ export function GameView({
       ? game.phase === "puzzle" && game.puzzle
         ? game.puzzle.puzzleId === "lock3"
           ? "Pod Bay"
+          : game.puzzle.puzzleId === "reactor6"
+          ? "Reactor"
           : "AI Core"
         : (activeCard?.zone ?? null)
       : null;
@@ -235,14 +245,21 @@ export function GameView({
         <TabsTrigger value="comms" className="flex-1 gap-1.5">
           ارتباطات
           {unreadCount > 0 && (
-            <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground tabular-nums">
+            <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white tabular-nums">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
         </TabsTrigger>
       </TabsList>
       <TabsContent value="crew" className="min-h-0 flex-1">
-        <CrewPanel game={game} selfId={selfId} />
+        <CrewPanel
+          game={game}
+          selfId={selfId}
+          onOpenInventory={() => {
+            soundFx.playInventoryOpen();
+            setInventoryOpen(true);
+          }}
+        />
       </TabsContent>
       <TabsContent value="comms" className="min-h-0 flex-1">
         <Comms
@@ -277,25 +294,74 @@ export function GameView({
           )}
         </div>
         <div className="mr-auto flex items-center gap-2">
+          {/* Quick toggle to Comms tab */}
+          <Button
+            variant={sideTab === "comms" ? "default" : "outline"}
+            size="sm"
+            className="gap-1.5 font-bold relative border-cyan-500/50 text-cyan-400 bg-cyan-950/20 hover:bg-cyan-900/30"
+            onClick={() => {
+              setSideTab("comms");
+              setShowSide(true);
+            }}
+          >
+            <Radio className="size-3.5 text-cyan-400 animate-pulse" />
+            <span className="hidden xs:inline">ارتباطات</span>
+            {unreadCount > 0 && (
+              <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white shadow-[0_0_8px_#ef4444]">
+                {unreadCount}
+              </span>
+            )}
+          </Button>
+
+          {/* Quick toggle to Inventory & Personal Notes */}
+          {game && (
+            <Button
+              variant={inventoryOpen ? "default" : "outline"}
+              size="sm"
+              className="gap-1.5 font-bold relative border-amber-500/50 text-amber-400 bg-amber-950/20 hover:bg-amber-900/30 hover:border-amber-400 hover:text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.15)]"
+              onClick={() => {
+                soundFx.playInventoryOpen();
+                setInventoryOpen(true);
+              }}
+              title="اینونتوری و یادداشت‌های خدمه (کلید میانبر I)"
+            >
+              <Backpack className="size-3.5 text-amber-400" />
+              <span className="hidden xs:inline">اینونتوری</span>
+              <kbd className="hidden md:inline-block rounded bg-amber-950/80 px-1 py-0.2 text-[9px] font-mono border border-amber-500/40 text-amber-300">
+                I
+              </kbd>
+            </Button>
+          )}
+
           <Button variant="outline" size="sm" onClick={copyRoomId}>
             {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
             <span className="hidden sm:inline">کپی کد</span>
           </Button>
           <Button
-            variant="outline"
+            variant={sideTab === "crew" ? "default" : "outline"}
             size="sm"
-            className="relative lg:hidden"
-            onClick={() => setShowSide((v) => !v)}
+            className="relative lg:hidden gap-1"
+            onClick={() => {
+              setSideTab("crew");
+              setShowSide(true);
+            }}
           >
             <Users className="size-4" />
-            {members.filter((m) => m.status === "connected").length}
-            {unreadCount > 0 && (
-              <span
-                className="absolute -right-1 -top-1 size-2.5 rounded-full bg-primary ring-2 ring-background"
-                aria-label={`${unreadCount} پیام خوانده نشده`}
-              />
-            )}
+            <span className="hidden sm:inline">خدمه</span>
+            <span>({members.filter((m) => m.status === "connected").length})</span>
           </Button>
+          <NetworkSettingsDialog
+            trigger={
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-cyan-400 p-2"
+                title="تنظیمات شبکه و سیگنالینگ (LAN / WebRTC)"
+              >
+                <Wifi className="size-4" />
+              </Button>
+            }
+          />
           <Button variant="ghost" size="sm" onClick={leave}>
             <LogOut className="size-4" />
             <span className="hidden sm:inline">ترک سفینه</span>
@@ -304,11 +370,30 @@ export function GameView({
       </header>
 
       {error ? (
-        <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center">
-          <p className="text-sm text-destructive">{error}</p>
-          <Button variant="outline" onClick={leave}>
-            Back home
-          </Button>
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center max-w-md mx-auto" dir="rtl">
+          <div className="p-3.5 rounded-full bg-destructive/10 text-destructive border border-destructive/30 shadow-[0_0_20px_rgba(239,68,68,0.2)]">
+            <WifiOff className="size-8" />
+          </div>
+          <div className="space-y-1.5">
+            <h3 className="font-bold text-foreground text-base">اختلال در ارتباط شبکه سفینه</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">{error}</p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
+            <NetworkSettingsDialog
+              trigger={
+                <Button variant="outline" size="sm" className="gap-1.5 border-cyan-500/50 text-cyan-400 hover:bg-cyan-950/30">
+                  <Settings className="size-3.5" />
+                  تنظیمات سیگنالینگ و شبکه محلی
+                </Button>
+              }
+            />
+            <Button variant="secondary" size="sm" onClick={() => window.location.reload()}>
+              تلاش مجدد
+            </Button>
+            <Button variant="ghost" size="sm" onClick={leave}>
+              بازگشت به لابی
+            </Button>
+          </div>
         </div>
       ) : !game ? (
         <div className="flex flex-1 items-center justify-center">
@@ -320,7 +405,8 @@ export function GameView({
           </p>
         </div>
       ) : (
-        <div className="flex min-h-0 flex-1">
+        <div className="flex min-h-0 flex-1 relative">
+          <HudMinimap game={game} activeZone={activeZone} />
           <aside className="hidden w-72 shrink-0 overflow-y-auto border-r p-3 md:block">
             <ShipBoard game={game} activeZone={activeZone} />
           </aside>
@@ -366,6 +452,16 @@ export function GameView({
             {sidebar}
           </div>
         </div>
+      )}
+
+      {game && (
+        <InventoryDialog
+          open={inventoryOpen}
+          onOpenChange={setInventoryOpen}
+          game={game}
+          selfId={selfId}
+          roomId={roomId}
+        />
       )}
     </div>
   );

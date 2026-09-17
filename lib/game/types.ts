@@ -52,6 +52,8 @@ export interface CardEffects {
   morale?: number;
   bond?: number;
   sticker?: StickerDef;
+  /** Flag set in state upon resolution. */
+  flagSet?: { key: string; value: boolean };
   /** Envelope id torn open when this outcome resolves. */
   envelope?: string;
   /** Extra narrative shown on resolution. */
@@ -81,12 +83,12 @@ export interface EnvelopeDef {
 
 export interface ClueDef {
   id: string;
-  puzzle: "lock3" | "firewall7";
+  puzzle: "lock3" | "reactor6" | "firewall9";
   text: string;
 }
 
 export interface PuzzleDef {
-  id: "lock3" | "firewall7";
+  id: "lock3" | "reactor6" | "firewall9";
   round: number;
   title: string;
   zone: string;
@@ -165,22 +167,24 @@ export interface ResolutionSummary {
 }
 
 export interface PuzzleState {
-  puzzleId: "lock3" | "firewall7";
+  puzzleId: "lock3" | "reactor6" | "firewall9";
   attempts: number;
   solved: boolean;
   bypassed: boolean;
   solvedBy: string | null;
   scratchpad: string;
   lastGuess: string | null;
+  interactiveData?: Record<string, any>;
 }
 
 export type Stage = "lobby" | "playing" | "ended";
 export type Phase = "reveal" | "peek" | "debate" | "resolution" | "puzzle";
 
-export const FINAL_ROUND = 8;
-export const PUZZLE_ROUNDS: Record<number, "lock3" | "firewall7"> = {
+export const FINAL_ROUND = 10;
+export const PUZZLE_ROUNDS: Record<number, "lock3" | "reactor6" | "firewall9"> = {
   3: "lock3",
-  7: "firewall7",
+  6: "reactor6",
+  9: "firewall9",
 };
 
 export interface FinalScore {
@@ -201,6 +205,7 @@ export interface GameState {
   officerSeat: number;
   seats: Seat[];
   resources: Resources;
+  flags: Record<string, boolean>;
   deck: string[];
   currentCardId: string | null;
   peekDone: boolean;
@@ -223,6 +228,7 @@ export type GameAction =
   | { type: "unlock-bid" }
   | { type: "continue" }
   | { type: "scratchpad"; text: string }
+  | { type: "puzzle-interact"; data: Record<string, any> }
   | { type: "guess"; guess: string }
   | { type: "bypass" }
   | { type: "return-to-lobby" }

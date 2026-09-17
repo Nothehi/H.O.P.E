@@ -13,7 +13,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { GameView } from "@/components/game/game-view";
+import { NetworkSettingsDialog } from "@/components/game/network-settings-dialog";
 import { isValidRoomId, normalizeRoomId } from "@/lib/protocol";
+import { Wifi } from "lucide-react";
 
 function RoomGate({ roomId }: { roomId: string }) {
   const router = useRouter();
@@ -70,16 +72,33 @@ function RoomGate({ roomId }: { roomId: string }) {
               دفترچه اصلی سفینه نام شما را به عنوان خدمه ثبت خواهد کرد.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex gap-2">
-            <Input
-              autoFocus
-              placeholder="نام نمایشی"
-              value={nameInput}
-              maxLength={32}
-              onChange={(e) => setNameInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && submit()}
-            />
-            <Button onClick={submit}>ادامه و ورود</Button>
+          <CardContent className="space-y-3">
+            <div className="flex gap-2">
+              <Input
+                autoFocus
+                placeholder="نام نمایشی"
+                value={nameInput}
+                maxLength={32}
+                onChange={(e) => setNameInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && submit()}
+              />
+              <Button onClick={submit}>ادامه و ورود</Button>
+            </div>
+            <div className="flex items-center justify-between pt-1 text-xs">
+              <NetworkSettingsDialog
+                trigger={
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-[11px] gap-1.5 text-muted-foreground hover:text-cyan-400 px-2"
+                  >
+                    <Wifi className="size-3" />
+                    تنظیمات شبکه و سیگنالینگ
+                  </Button>
+                }
+              />
+              <span className="text-[10px] text-muted-foreground font-mono">H.O.P.E. WebRTC</span>
+            </div>
           </CardContent>
         </Card>
       </main>

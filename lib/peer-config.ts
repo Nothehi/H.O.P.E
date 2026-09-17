@@ -55,20 +55,92 @@ function staticIceServers(): RTCIceServer[] | undefined {
   return servers;
 }
 
-/** Signaling-server options; empty object means PeerJS's public cloud. */
-function signalingOptions(): PeerOptions {
+export interface UserPeerConfig {
+  mode: "auto" | "lan" | "cloud" | "custom";
+  customHost?: string;
+  customPort?: number;
+  customPath?: string;
+  customSecure?: boolean;
+}
+
+export const PEER_STORAGE_KEY = "hope_peer_config";
+
+export function isLocalNetworkHost(hostname: string): boolean {
+  return (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname.startsWith("192.168.") ||
+    hostname.startsWith("10.") ||
+    /^172\.(1[6-9]|2\d|3[01])\./.test(hostname)
+  );
+}
+
+export function getStoredPeerConfig(): UserPeerConfig {
+  if (typeof window === "undefined") {
+    return { mode: "auto" };
+  }
+  try {
+    const raw = localStorage.getItem(PEER_STORAGE_KEY);
+    if (raw) {
+      return JSON.parse(raw);
+    }
+  } catch {}
+  return { mode: "auto" };
+}
+
+export function saveStoredPeerConfig(cfg: UserPeerConfig) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(PEER_STORAGE_KEY, JSON.stringify(cfg));
+  } catch {}
+}
+
+/** Signaling-server options; smart detection for LAN / localhost + fallback to cloud. */
+export function signalingOptions(): PeerOptions {
   const options: PeerOptions = {};
-  const host = process.env.NEXT_PUBLIC_PEER_HOST;
-  if (host) {
-    options.host = host;
+
+  // 1. User manual override from settings / localStorage
+  const userCfg = getStoredPeerConfig();
+  if (userCfg.mode === "cloud") {
+    return options; // Connects to default 0.peerjs.com
+  }
+
+  if (userCfg.mode === "custom" && userCfg.customHost) {
+    options.host = userCfg.customHost;
+    options.port = userCfg.customPort || (userCfg.customSecure ? 443 : 9000);
+    options.path = userCfg.customPath || "/hope";
+    options.secure = userCfg.customSecure ?? false;
+    return options;
+  }
+
+  // 2. Build-time environment variable override
+  const envHost = process.env.NEXT_PUBLIC_PEER_HOST;
+  if (envHost) {
+    options.host = envHost;
     options.port = Number(process.env.NEXT_PUBLIC_PEER_PORT) || 443;
     options.path = process.env.NEXT_PUBLIC_PEER_PATH || "/";
-    // Secure (wss/https) by default; opt out only for local plaintext dev.
     options.secure = process.env.NEXT_PUBLIC_PEER_SECURE !== "false";
     if (process.env.NEXT_PUBLIC_PEER_KEY) {
       options.key = process.env.NEXT_PUBLIC_PEER_KEY;
     }
+    return options;
   }
+
+  // 3. Smart Auto-Detection for LAN & Localhost
+  if (typeof window !== "undefined") {
+    const currentHost = window.location.hostname;
+    const isHttp = window.location.protocol === "http:";
+
+    // If accessing via local network IP or localhost, route signaling to local PeerServer on port 9000
+    if (userCfg.mode === "lan" || isLocalNetworkHost(currentHost)) {
+      options.host = currentHost;
+      options.port = Number(process.env.NEXT_PUBLIC_PEER_PORT) || 9000;
+      options.path = process.env.NEXT_PUBLIC_PEER_PATH || "/hope";
+      options.secure = isHttp ? false : process.env.NEXT_PUBLIC_PEER_SECURE === "true";
+      return options;
+    }
+  }
+
   return options;
 }
 
@@ -108,16 +180,58 @@ async function fetchIceServers(url: string): Promise<RTCIceServer[] | null> {
   }
 }
 
+/** Fast probe to check if the local PeerServer is listening before connecting */
+async function isPeerServerAlive(host: string, port: number, path: string): Promise<boolean> {
+  if (typeof window === "undefined") return false;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 2500);
+  try {
+    const protocol = window.location.protocol === "https:" ? "https:" : "http:";
+    const res = await fetch(`${protocol}//${host}:${port}${path}`, {
+      signal: controller.signal,
+      mode: "cors",
+    });
+    return res.ok;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /**
  * Resolve the PeerJS options for every `new Peer(...)` in the app. Both the
  * beacon and mesh peers of a room must share these so they meet on the same
  * signaling server and negotiate over the same ICE servers.
  *
- * Async because ICE servers may be fetched at runtime; the result is cached,
- * so calling this per-peer is cheap.
+ * Async because ICE servers may be fetched at runtime and local server health
+ * is probed dynamically.
  */
 export async function resolvePeerOptions(): Promise<PeerOptions> {
-  const options = signalingOptions();
+  const userCfg = getStoredPeerConfig();
+  let options = signalingOptions();
+
+  // If in auto mode and targeted a local host, verify port 9000 is actually running
+  if (
+    typeof window !== "undefined" &&
+    userCfg.mode === "auto" &&
+    options.host &&
+    isLocalNetworkHost(options.host)
+  ) {
+    const isAlive = await isPeerServerAlive(
+      options.host,
+      options.port || 9000,
+      options.path || "/hope"
+    );
+
+    if (!isAlive) {
+      console.warn(
+        `[H.O.P.E. WebRTC] Local PeerServer not detected on ws://${options.host}:${options.port || 9000}${options.path || "/hope"}. Falling back to 0.peerjs.com. (Run 'pnpm run dev' to launch both Next.js and the local signaling server).`
+      );
+      // Fallback to default cloud broker so we don't throw connection refused errors
+      options = {};
+    }
+  }
 
   const iceUrl = process.env.NEXT_PUBLIC_ICE_SERVERS_URL;
   const ice = iceUrl ? await fetchIceServers(iceUrl) : null;
