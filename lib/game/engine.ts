@@ -15,13 +15,12 @@ import {
   ENVELOPES,
   FINAL_CARD_ID,
   MIRACLE_REQ,
-  PUZZLES,
-  PUZZLE_ENVELOPE,
   agendaMet,
 } from "./content";
 import {
+  DEFAULT_DEBATE_SECONDS,
+  DEFAULT_MISSION_SECONDS,
   FINAL_ROUND,
-  PUZZLE_ROUNDS,
   type Bid,
   type CardEffects,
   type Chronicle,
@@ -34,7 +33,6 @@ import {
 
 const START_TOKENS = 10;
 const MAX_TOKENS = 15;
-const SCRATCHPAD_LIMIT = 4000;
 
 function shuffle<T>(items: T[]): T[] {
   const out = [...items];
@@ -89,6 +87,9 @@ export function createLobbyState(chronicle: Chronicle): GameState {
     chronicle,
     endingId: null,
     finalScores: null,
+    missionDeadline: null,
+    debateDeadline: null,
+    timerPaused: false,
   };
 }
 
@@ -185,20 +186,6 @@ function openEnvelope(
   if (env.sticker) placeSticker(state, env.sticker, notes);
 }
 
-/** Deal each puzzle's clues round-robin so knowledge is spread asymmetrically. */
-function dealClues(seats: Seat[]) {
-  for (const seat of seats) seat.clueIds = [];
-  if (seats.length === 0) return;
-  const order = shuffle(seats);
-  let i = 0;
-  for (const puzzle of Object.values(PUZZLES)) {
-    for (const clueId of shuffle(puzzle.clueIds)) {
-      order[i % order.length].clueIds.push(clueId);
-      i++;
-    }
-  }
-}
-
 function startVoyage(state: GameState) {
   const chronicle = state.chronicle;
   chronicle.voyage += 1;
@@ -238,7 +225,6 @@ function startVoyage(state: GameState) {
     seat.signCount = 0;
     seat.agendaId = agendas[i % agendas.length];
   });
-  dealClues(state.seats);
 
   state.stage = "playing";
   state.round = 1;
@@ -248,16 +234,21 @@ function startVoyage(state: GameState) {
   state.peekDone = false;
   state.bids = {};
   state.lastResolution = null;
-  state.puzzle = null;
   state.openedEnvelopeId = null;
   state.endingId = null;
   state.finalScores = null;
+  state.missionDeadline = Date.now() + DEFAULT_MISSION_SECONDS * 1000;
+  state.debateDeadline = null;
+  state.timerPaused = false;
 }
 
 function endGame(state: GameState, endingId: string) {
   state.stage = "ended";
   state.endingId = endingId;
   state.chronicle.lastEnding = endingId;
+  state.missionDeadline = null;
+  state.debateDeadline = null;
+  state.timerPaused = false;
 
   state.finalScores = state.seats
     .map((seat) => {
@@ -312,7 +303,8 @@ function applyEffects(
   if (effects.envelope) openEnvelope(state, effects.envelope, notes);
 }
 
-function resolveDilemma(state: GameState) {
+function resolveDilemma(state: GameState, timeoutPenalty = false) {
+  state.debateDeadline = null;
   const card = state.currentCardId ? CARDS[state.currentCardId] : null;
   if (!card) return;
 
@@ -338,6 +330,13 @@ function resolveDilemma(state: GameState) {
   }
 
   const notes: string[] = [];
+  if (timeoutPenalty) {
+    clampResource(state, "morale", -1);
+    clampResource(state, "oxygen", -1);
+    notes.push(
+      "⚠️ پایان زمان مذاکره: بلاتکلیفی و تاخیر در رای‌گیری موجب افت ۱ واحد روحیه و ۱ واحد اکسیژن شد.",
+    );
+  }
   let leader: Seat | null = null;
   let leaderTokens = -1;
 
@@ -481,8 +480,8 @@ function beginRound(state: GameState) {
   state.currentCardId = null;
   state.peekDone = false;
   state.bids = {};
-  state.puzzle = null;
   state.openedEnvelopeId = null;
+  state.debateDeadline = null;
 
   // Rotate the Officer of the Watch to the next connected seat.
   if (state.seats.length > 0) {
@@ -494,52 +493,7 @@ function beginRound(state: GameState) {
     state.officerSeat = next;
   }
 
-  const puzzleId = PUZZLE_ROUNDS[state.round];
-  if (puzzleId && !state.chronicle.envelopesOpened.includes(PUZZLE_ENVELOPE[puzzleId])) {
-    state.phase = "puzzle";
-    state.puzzle = {
-      puzzleId,
-      attempts: 0,
-      solved: false,
-      bypassed: false,
-      solvedBy: null,
-      scratchpad: "",
-      lastGuess: null,
-    };
-  } else {
-    state.phase = "reveal";
-  }
-}
-
-function failPuzzle(state: GameState, notes: string[]) {
-  const puzzle = state.puzzle;
-  if (!puzzle) return;
-  puzzle.bypassed = true;
-  if (puzzle.puzzleId === "lock3") {
-    // The pod bay stays locked; forcing the bulkheads scars the ship.
-    clampResource(state, "hull", -2);
-    clampResource(state, "morale", -1);
-    notes.push(
-      "The lock's countermeasures win. Cutting through the bulkheads costs 2 Hull and 1 Morale — and the pods stay sealed.",
-    );
-  } else if (puzzle.puzzleId === "reactor6") {
-    clampResource(state, "hull", -2);
-    clampResource(state, "oxygen", -2);
-    notes.push(
-      "The reactor coolant stabilization failed. Manual emergency vents cost 2 Hull and 2 Oxygen.",
-    );
-    openEnvelope(state, PUZZLE_ENVELOPE.reactor6, notes);
-  } else {
-    // The firewall is torched open: the truth comes out, but burned.
-    clampResource(state, "hull", -2);
-    clampResource(state, "morale", -2);
-    clampResource(state, "bond", -2);
-    notes.push(
-      "The Technician burns the firewall open by force. 2 Hull, 2 Morale and 2 Bond are lost — parts of her memory archive go with it.",
-    );
-    openEnvelope(state, PUZZLE_ENVELOPE.firewall9, notes);
-  }
-  checkCatastrophe(state);
+  state.phase = "reveal";
 }
 
 function applyPresence(
@@ -645,6 +599,9 @@ export function applyAction(
       );
       state.peekDone = !technicianOnline;
       state.phase = technicianOnline ? "peek" : "debate";
+      if (!technicianOnline) {
+        state.debateDeadline = Date.now() + DEFAULT_DEBATE_SECONDS * 1000;
+      }
       break;
     }
 
@@ -654,6 +611,7 @@ export function applyAction(
       if (seat?.role !== "technician") return prev;
       state.peekDone = true;
       state.phase = "debate";
+      state.debateDeadline = Date.now() + DEFAULT_DEBATE_SECONDS * 1000;
       break;
     }
 
@@ -679,98 +637,67 @@ export function applyAction(
       break;
     }
 
-    case "scratchpad": {
-      if (state.stage !== "playing" || state.phase !== "puzzle" || !state.puzzle)
-        return prev;
-      if (!seatOf(state, playerId)) return prev;
-      state.puzzle.scratchpad = action.text.slice(0, SCRATCHPAD_LIMIT);
+    case "continue": {
+      if (state.stage !== "playing") return prev;
+      if (!canModerate(state, playerId)) return prev;
+      if (state.phase !== "resolution") return prev;
+      state.round += 1;
+      state.lastResolution = null;
+      beginRound(state);
       break;
     }
 
-    case "puzzle-interact": {
-      if (state.stage !== "playing" || state.phase !== "puzzle" || !state.puzzle)
-        return prev;
-      if (!seatOf(state, playerId)) return prev;
-      state.puzzle.interactiveData = {
-        ...(state.puzzle.interactiveData || {}),
-        ...action.data,
-      };
+    case "debate-timeout": {
+      if (state.stage !== "playing" || state.phase !== "debate") return prev;
+      for (const seat of connectedSeats(state)) {
+        const bid = state.bids[seat.playerId];
+        if (bid && !bid.locked) {
+          bid.locked = true;
+        } else if (!bid) {
+          state.bids[seat.playerId] = { choice: "pass", tokens: 0, locked: true };
+        }
+      }
+      resolveDilemma(state, true);
       break;
     }
 
-    case "guess": {
-      if (state.stage !== "playing" || state.phase !== "puzzle") return prev;
-      const puzzle = state.puzzle;
-      const seat = seatOf(state, playerId);
-      if (!puzzle || puzzle.solved || puzzle.bypassed || !seat) return prev;
-      const def = PUZZLES[puzzle.puzzleId];
-      const guess = action.guess.trim().toUpperCase().replace(/\s+/g, "");
-      if (!guess) return prev;
-      puzzle.attempts += 1;
-      puzzle.lastGuess = guess;
-      if (guess === def.answer) {
-        puzzle.solved = true;
-        puzzle.solvedBy = seat.name;
-        seat.heroPoints += 3;
-        const notes: string[] = [
-          `${seat.name} cracks the ${def.title} — +3 hero points.`,
-        ];
-        if (puzzle.puzzleId === "firewall9") clampResource(state, "bond", 2);
-        openEnvelope(state, PUZZLE_ENVELOPE[puzzle.puzzleId], notes);
-        state.lastResolution = {
-          cardId: def.id,
-          winner: "A",
-          tally: { A: 0, B: 0 },
-          leaderName: seat.name,
-          effects: {},
-          envelopeOpened: state.openedEnvelopeId,
-          notes,
-        };
-      } else if (puzzle.attempts >= def.maxAttempts) {
-        const notes: string[] = [];
-        failPuzzle(state, notes);
-        state.lastResolution = {
-          cardId: def.id,
-          winner: "A",
-          tally: { A: 0, B: 0 },
-          leaderName: null,
-          effects: {},
-          envelopeOpened: state.openedEnvelopeId,
-          notes,
-        };
+    case "mission-timeout": {
+      if (state.stage !== "playing") return prev;
+      endGame(state, "time-exhausted");
+      break;
+    }
+
+    case "toggle-timer-pause": {
+      if (state.stage !== "playing") return prev;
+      if (!canModerate(state, playerId)) return prev;
+      const now = Date.now();
+      if (!state.timerPaused) {
+        state.timerPaused = true;
+        state.pausedRemainingMissionMs = state.missionDeadline ? Math.max(0, state.missionDeadline - now) : null;
+        state.pausedRemainingDebateMs = state.debateDeadline ? Math.max(0, state.debateDeadline - now) : null;
+      } else {
+        state.timerPaused = false;
+        state.missionDeadline = state.pausedRemainingMissionMs != null ? now + state.pausedRemainingMissionMs : null;
+        state.debateDeadline = state.pausedRemainingDebateMs != null ? now + state.pausedRemainingDebateMs : null;
+        state.pausedRemainingMissionMs = null;
+        state.pausedRemainingDebateMs = null;
       }
       break;
     }
 
-    case "bypass": {
-      if (state.stage !== "playing" || state.phase !== "puzzle") return prev;
-      const puzzle = state.puzzle;
-      if (!puzzle || puzzle.solved || puzzle.bypassed) return prev;
-      if (!canModerate(state, playerId)) return prev;
-      const notes: string[] = [];
-      failPuzzle(state, notes);
-      state.lastResolution = {
-        cardId: PUZZLES[puzzle.puzzleId].id,
-        winner: "A",
-        tally: { A: 0, B: 0 },
-        leaderName: null,
-        effects: {},
-        envelopeOpened: state.openedEnvelopeId,
-        notes,
-      };
-      break;
-    }
-
-    case "continue": {
+    case "add-time": {
       if (state.stage !== "playing") return prev;
       if (!canModerate(state, playerId)) return prev;
-      const puzzleDone =
-        state.phase === "puzzle" &&
-        (state.puzzle?.solved || state.puzzle?.bypassed);
-      if (state.phase !== "resolution" && !puzzleDone) return prev;
-      state.round += 1;
-      state.lastResolution = null;
-      beginRound(state);
+      const addMs = (action.seconds || 30) * 1000;
+      if (state.timerPaused) {
+        if (state.pausedRemainingDebateMs != null) {
+          state.pausedRemainingDebateMs += addMs;
+        }
+      } else {
+        if (state.debateDeadline != null) {
+          state.debateDeadline += addMs;
+        }
+      }
       break;
     }
 

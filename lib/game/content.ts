@@ -9,12 +9,10 @@
 
 import type {
   AgendaDef,
-  ClueDef,
   DilemmaCard,
   EndingDef,
   EnvelopeDef,
   GameState,
-  PuzzleDef,
   Seat,
 } from "./types";
 
@@ -41,6 +39,7 @@ export const FINAL_CARD_ID = "final-choice";
 const CARD_LIST: DilemmaCard[] = [
   {
     id: "hull-breach",
+    image: "/images/cards/hull-breach.jpg",
     title: "شکاف در عرشه شماره چهار",
     zone: "Engineering",
     narrative:
@@ -65,6 +64,7 @@ const CARD_LIST: DilemmaCard[] = [
   },
   {
     id: "cargo-riot",
+    image: "/images/cards/cargo-riot.jpg",
     title: "شورش در انبار کالا",
     zone: "Cargo Bay",
     narrative:
@@ -86,6 +86,7 @@ const CARD_LIST: DilemmaCard[] = [
   },
   {
     id: "reactor-flicker",
+    image: "/images/cards/reactor-flicker.jpg",
     title: "نشتی مدار خنک‌کننده",
     zone: "Reactor",
     narrative:
@@ -107,6 +108,7 @@ const CARD_LIST: DilemmaCard[] = [
   },
   {
     id: "medbay-plague",
+    image: "/images/cards/medbay-plague.jpg",
     title: "شیوع قارچی در درمانگاه",
     zone: "Medbay",
     narrative:
@@ -131,6 +133,7 @@ const CARD_LIST: DilemmaCard[] = [
   },
   {
     id: "stowaway-signal",
+    image: "/images/cards/stowaway-signal.jpg",
     title: "سیگنال سرمازدگی",
     zone: "Bridge",
     narrative:
@@ -153,6 +156,7 @@ const CARD_LIST: DilemmaCard[] = [
   },
   {
     id: "ai-anomaly",
+    image: "/images/cards/ai-anomaly.jpg",
     title: "بخش محرمانه سرورها",
     zone: "AI Core",
     narrative:
@@ -175,6 +179,7 @@ const CARD_LIST: DilemmaCard[] = [
   },
   {
     id: "solar-storm",
+    image: "/images/cards/solar-storm.jpg",
     title: "طوفان تشعشعات خورشیدی",
     zone: "Bridge",
     narrative:
@@ -196,6 +201,7 @@ const CARD_LIST: DilemmaCard[] = [
   },
   {
     id: "water-recycler",
+    image: "/images/cards/water-recycler.jpg",
     title: "انسداد بازیافت‌کننده آب",
     zone: "Life Support",
     narrative:
@@ -229,6 +235,7 @@ const CARD_LIST: DilemmaCard[] = [
   },
   {
     id: "mutiny-whisper",
+    image: "/images/cards/mutiny-whisper.jpg",
     title: "زمزمه‌های شورش در عرشه ۹",
     zone: "Crew Quarters",
     narrative:
@@ -250,6 +257,7 @@ const CARD_LIST: DilemmaCard[] = [
   },
   {
     id: "engine-overburn",
+    image: "/images/cards/engine-overburn.jpg",
     title: "مانور رانش بیش از حد",
     zone: "Engineering",
     narrative:
@@ -273,6 +281,7 @@ const CARD_LIST: DilemmaCard[] = [
   },
   {
     id: "hope-request",
+    image: "/images/cards/hope-request.jpg",
     title: "یک درخواست کوچک",
     zone: "AI Core",
     narrative:
@@ -295,6 +304,7 @@ const CARD_LIST: DilemmaCard[] = [
   /* --- cards added to the deck by envelopes ------------------------ */
   {
     id: "curfew-unrest",
+    image: "/images/cards/curfew-unrest.jpg",
     title: "زندگی تحت حکومت نظامی",
     zone: "Crew Quarters",
     narrative:
@@ -314,6 +324,7 @@ const CARD_LIST: DilemmaCard[] = [
   },
   {
     id: "the-stowaway",
+    image: "/images/cards/the-stowaway.jpg",
     title: "زنِ سرمازده کپسول C",
     zone: "Medbay",
     narrative:
@@ -338,6 +349,7 @@ const CARD_LIST: DilemmaCard[] = [
 
   {
     id: "bridge-navigation",
+    image: "/images/cards/bridge-navigation.jpg",
     title: "اختلال در ناوبری مداری",
     zone: "Bridge",
     narrative:
@@ -373,6 +385,7 @@ const CARD_LIST: DilemmaCard[] = [
   },
   {
     id: "life-support-filter",
+    image: "/images/cards/life-support-filter.jpg",
     title: "انسداد فیلترهای پشتیبانی حیات",
     zone: "Life Support",
     narrative:
@@ -398,6 +411,7 @@ const CARD_LIST: DilemmaCard[] = [
   /* --- the final dilemma ------------------------------------------ */
   {
     id: FINAL_CARD_ID,
+    image: "/images/cards/final-choice.jpg",
     title: "بحران نهایی: سرنوشت H.O.P.E.",
     zone: "AI Core",
     narrative:
@@ -418,6 +432,13 @@ const CARD_LIST: DilemmaCard[] = [
 export const CARDS: Record<string, DilemmaCard> = Object.fromEntries(
   CARD_LIST.map((c) => [c.id, c]),
 );
+
+/** Returns the image path for a given card id. */
+export function getCardImage(cardId: string): string {
+  const card = CARDS[cardId];
+  if (card?.image) return card.image;
+  return `/images/cards/${cardId}.jpg`;
+}
 
 /** Cards in the deck at the start of a fresh chronicle. */
 export const BASE_DECK: string[] = [
@@ -509,107 +530,6 @@ export const ENVELOPES: Record<string, EnvelopeDef> = Object.fromEntries(
   ENVELOPE_LIST.map((e) => [e.id, e]),
 );
 
-/* ------------------------------------------------------------------ */
-/* Puzzles & clues                                                     */
-/* ------------------------------------------------------------------ */
-
-const CLUE_LIST: ClueDef[] = [
-  {
-    id: "c-lock-1",
-    puzzle: "lock3",
-    text: "حک شده روی در آشیانه کپسول‌ها، نیمه‌ساییده: «نام رمز پروژه اولیه... نام خنیاگر و شاعری در اساطیر باستان که با چنگ خود برای بازگرداندن معشوقه‌اش به جهان مردگان رفت.»",
-  },
-  {
-    id: "c-lock-2",
-    puzzle: "lock3",
-    text: "دفترچه ثبت مهندسی آشیانه: «کد بای‌پاس اضطراری دقیقاً یک کلمه ۷ حرفی انگلیسی است که با دو حرف OR آغاز می‌شود.»",
-  },
-  {
-    id: "c-lock-3",
-    puzzle: "lock3",
-    text: "لاگ آزمایشگاهی کپسول‌ها: «سه حرف پایانی کد اساطیری پروژه ...EUS است. برای پایداری جریان برق، اتصال فیوزهای متقاطع مدار را فعال نگه دارید.»",
-  },
-  {
-    id: "c-reac-1",
-    puzzle: "reactor6",
-    text: "مانیتور هشدار حرارتی راکتور: «برای مهار واکنش زنجیره‌ای، سامانه فرمان پایدارسازی تک‌کلمه‌ای انگلیسی (۹ حرفی) می‌خواهد که از بن‌واژه Stable مشتق شده است.»",
-  },
-  {
-    id: "c-reac-2",
-    puzzle: "reactor6",
-    text: "دستورالعمل مهندسی راکتور: «فرمان تثبیت به پسوند افعالساز IZE ختم می‌شود و حروف میانی آن ILI است. فرکانس نوسان‌نما باید روی موج تشدید بهینه کالیبره شود.»",
-  },
-  {
-    id: "c-reac-3",
-    puzzle: "reactor6",
-    text: "لاگ دستی سرپرست موتورخانه: «کلمه تثبیت با STAB شروع می‌شود و مجموعاً ۹ حرف دارد. همه ۹ حرف را با حروف بزرگ لاتین وارد کنید.»",
-  },
-  {
-    id: "c-fire-1",
-    puzzle: "firewall9",
-    text: "قطعه صوتی بازیابی‌شده از لایه‌های زیرین هسته: «یک جعبه موسیقی کودکانه قدیمی که هر شب قبل از خواب برای دختربچه نواخته می‌شد. کلمه رمز، واژه انگلیسی نغمه آرام‌بخش خواب کودک (لالایی) است.»",
-  },
-  {
-    id: "c-fire-2",
-    puzzle: "firewall9",
-    text: "تحلیل طیف‌سنج صوتی دیوار آتش: «کلید دسترسی یک واژه انگلیسی ۷ حرفی است که با حرف L شروع شده و به Y ختم می‌شود.»",
-  },
-  {
-    id: "c-fire-3",
-    puzzle: "firewall9",
-    text: "دست‌نوشته اشک‌آلود پدر در حاشیه سرور: «دخترم با این زمزمه آرام می‌گرفت... کلمه‌ای با دو L متوالی در میانه و دو هجای آرامش‌بخش لاتین.»",
-  },
-];
-
-export const CLUES: Record<string, ClueDef> = Object.fromEntries(
-  CLUE_LIST.map((c) => [c.id, c]),
-);
-
-export const PUZZLES: Record<"lock3" | "reactor6" | "firewall9", PuzzleDef> = {
-  lock3: {
-    id: "lock3",
-    round: 3,
-    title: "قفل امنیتی سیستم ۱: آشیانه کپسول‌ها (مدار فیوزها)",
-    zone: "Pod Bay",
-    prompt:
-      "سامانه دیواره‌های امنیتی آشیانه کپسول‌ها بر اثر نوسان ولتاژ قفل شده است. فیوزهای مدار را روی جریان پایدار تنظیم کرده و کد بای‌پاس اساطیری ۷ حرفی را با تلفیق سرنخ‌های متنی خدمه در کنسول ثبت کنید.",
-    answer: "ORPHEUS",
-    placeholder: "ورود کد بای‌پاس ۷ حرفی...",
-    maxAttempts: 5,
-    clueIds: ["c-lock-1", "c-lock-2", "c-lock-3"],
-  },
-  reactor6: {
-    id: "reactor6",
-    round: 6,
-    title: "قفل امنیتی سیستم ۲: کالیبراسیون نوسان‌نمای راکتور",
-    zone: "Reactor",
-    prompt:
-      "مدار خنک‌کننده راکتور دچار ارتعاش خطرناک شده است. اسلایدرهای فرکانس و دامنه را روی موج آرام تنظیم کرده و فرمان تثبیت ۹ حرفی را با همفکری و تجمیع سرنخ‌های خدمه در ترمینال وارد کنید.",
-    answer: "STABILIZE",
-    placeholder: "ورود فرمان تثبیت ۹ حرفی...",
-    maxAttempts: 5,
-    clueIds: ["c-reac-1", "c-reac-2", "c-reac-3"],
-  },
-  firewall9: {
-    id: "firewall9",
-    round: 9,
-    title: "قفل امنیتی سیستم ۳: دیوار آتش آمارا",
-    zone: "AI Core",
-    prompt:
-      "دیوار آتش کوانتومی هسته آمارا از پذیرش فرامین سیستمی امتناع کرده و خواهان نغمه احساسی گمشده انسانی است. باندهای فرکانسی را لمس کرده و کلید صوتی ۷ حرفی را با استفاده از سرنخ‌های عاطفی ثبت کنید.",
-    answer: "LULLABY",
-    placeholder: "ورود کلید صوتی ۷ حرفی...",
-    maxAttempts: 5,
-    clueIds: ["c-fire-1", "c-fire-2", "c-fire-3"],
-  },
-};
-
-/** Envelope torn open when a puzzle is beaten (or forced). */
-export const PUZZLE_ENVELOPE: Record<"lock3" | "reactor6" | "firewall9", string> = {
-  lock3: "env-pod-bay",
-  reactor6: "env-reactor-core",
-  firewall9: "env-hope-truth",
-};
 
 /* ------------------------------------------------------------------ */
 /* Agendas                                                             */
@@ -745,6 +665,12 @@ const ENDING_LIST: EndingDef[] = [
     id: "burning-sky",
     title: "آسمان سوزان",
     text: "محاسبات روی تمام صفحه بود اما خدمه عشق را انتخاب کردند. کپسول‌ها با زاویه اشتباه وارد جو شدند. آمارا تمام توان باقی‌مانده را صرف سپر یک کپسول کرد. تنها یک کودک زنده ماند که با داستان صدای میان آتش بزرگ شد.",
+    survived: false,
+  },
+  {
+    id: "time-exhausted",
+    title: "خاموشی ابدی در خلاء (اتمام زمان ماموریت)",
+    text: "سوخت و ذخایر انرژی اضطراری قبل از رسیدن به مدار مقصد به اتمام رسید. سیستم‌های پشتیبان حیات از کار افتادند و سفینه H.O.P.E. در سکوت منجمد فضا به خوابی بی‌پایان فرورفت.",
     survived: false,
   },
 ];

@@ -69,6 +69,7 @@ export interface DilemmaCard {
   optionB: string;
   effectsA: CardEffects;
   effectsB: CardEffects;
+  image?: string;
   /** Hidden firewall log fragment — only the Technician sees it while peeking. */
   hiddenLog?: string;
 }
@@ -81,23 +82,6 @@ export interface EnvelopeDef {
   sticker?: StickerDef;
 }
 
-export interface ClueDef {
-  id: string;
-  puzzle: "lock3" | "reactor6" | "firewall9";
-  text: string;
-}
-
-export interface PuzzleDef {
-  id: "lock3" | "reactor6" | "firewall9";
-  round: number;
-  title: string;
-  zone: string;
-  prompt: string;
-  answer: string;
-  placeholder: string;
-  maxAttempts: number;
-  clueIds: string[];
-}
 
 export interface AgendaDef {
   id: string;
@@ -146,7 +130,7 @@ export interface Seat {
   tokens: number;
   heroPoints: number;
   agendaId: string | null;
-  clueIds: string[];
+  clueIds?: string[];
   signCount: number;
 }
 
@@ -166,26 +150,10 @@ export interface ResolutionSummary {
   notes: string[];
 }
 
-export interface PuzzleState {
-  puzzleId: "lock3" | "reactor6" | "firewall9";
-  attempts: number;
-  solved: boolean;
-  bypassed: boolean;
-  solvedBy: string | null;
-  scratchpad: string;
-  lastGuess: string | null;
-  interactiveData?: Record<string, any>;
-}
-
 export type Stage = "lobby" | "playing" | "ended";
-export type Phase = "reveal" | "peek" | "debate" | "resolution" | "puzzle";
+export type Phase = "reveal" | "peek" | "debate" | "resolution";
 
 export const FINAL_ROUND = 10;
-export const PUZZLE_ROUNDS: Record<number, "lock3" | "reactor6" | "firewall9"> = {
-  3: "lock3",
-  6: "reactor6",
-  9: "firewall9",
-};
 
 export interface FinalScore {
   playerId: string;
@@ -196,6 +164,9 @@ export interface FinalScore {
   agendaMet: boolean;
   total: number;
 }
+
+export const DEFAULT_DEBATE_SECONDS = 90;
+export const DEFAULT_MISSION_SECONDS = 25 * 60;
 
 export interface GameState {
   seq: number;
@@ -211,12 +182,17 @@ export interface GameState {
   peekDone: boolean;
   bids: Record<string, Bid>;
   lastResolution: ResolutionSummary | null;
-  puzzle: PuzzleState | null;
+  puzzle?: null;
   /** Envelope revealed this round (text shown to everyone). */
   openedEnvelopeId: string | null;
   chronicle: Chronicle;
   endingId: string | null;
   finalScores: FinalScore[] | null;
+  missionDeadline?: number | null;
+  debateDeadline?: number | null;
+  timerPaused?: boolean;
+  pausedRemainingMissionMs?: number | null;
+  pausedRemainingDebateMs?: number | null;
 }
 
 export type GameAction =
@@ -227,11 +203,11 @@ export type GameAction =
   | { type: "set-bid"; choice: "A" | "B" | "pass"; tokens: number }
   | { type: "unlock-bid" }
   | { type: "continue" }
-  | { type: "scratchpad"; text: string }
-  | { type: "puzzle-interact"; data: Record<string, any> }
-  | { type: "guess"; guess: string }
-  | { type: "bypass" }
   | { type: "return-to-lobby" }
+  | { type: "debate-timeout" }
+  | { type: "mission-timeout" }
+  | { type: "toggle-timer-pause" }
+  | { type: "add-time"; seconds: number }
   | {
       type: "presence";
       players: { playerId: string; name: string; connected: boolean }[];

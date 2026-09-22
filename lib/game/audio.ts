@@ -93,6 +93,39 @@ class SoundEngine {
     osc.stop(this.ctx.currentTime + 0.5);
   }
 
+  /** Subtle sci-fi timer tick or urgent heartbeat click */
+  playTimerTick(isUrgent = false) {
+    this.initCtx();
+    if (!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = isUrgent ? "sawtooth" : "sine";
+    osc.frequency.setValueAtTime(isUrgent ? 880 : 440, this.ctx.currentTime);
+    gain.gain.setValueAtTime(isUrgent ? 0.12 : 0.04, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + (isUrgent ? 0.08 : 0.04));
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + (isUrgent ? 0.08 : 0.04));
+  }
+
+  /** Timeout alarm sound when time expires */
+  playTimeoutAlarm() {
+    this.initCtx();
+    if (!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(140, this.ctx.currentTime + 0.4);
+    gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.4);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.4);
+  }
+
   /** Success chime when a puzzle is solved */
   playAccessGranted() {
     this.initCtx();

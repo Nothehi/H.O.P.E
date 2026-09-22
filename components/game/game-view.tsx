@@ -31,11 +31,11 @@ import { DilemmaPanel } from "./dilemma";
 import { EndingPanel } from "./ending";
 import { HudMinimap } from "./hud-minimap";
 import { Lobby } from "./lobby";
-import { PuzzlePanel } from "./puzzle";
 import { ROLE_META } from "./meta";
 import { ClassifiedDossierDialog } from "./classified-dossier-dialog";
 import { InventoryDialog } from "./inventory-dialog";
 import { NetworkSettingsDialog } from "./network-settings-dialog";
+import { MissionCountdownBadge } from "./game-timer";
 import { soundFx } from "@/lib/game/audio";
 
 function SeatRow({ seat, isOfficer }: { seat: Seat; isOfficer: boolean }) {
@@ -212,13 +212,7 @@ export function GameView({
   const activeCard = game?.currentCardId ? CARDS[game.currentCardId] : null;
   const activeZone =
     game?.stage === "playing"
-      ? game.phase === "puzzle" && game.puzzle
-        ? game.puzzle.puzzleId === "lock3"
-          ? "Pod Bay"
-          : game.puzzle.puzzleId === "reactor6"
-          ? "Reactor"
-          : "AI Core"
-        : (activeCard?.zone ?? null)
+      ? (activeCard?.zone ?? null)
       : null;
 
   const phaseLabel =
@@ -228,7 +222,6 @@ export function GameView({
           peek: "هک سیستم‌های پیش‌بینی",
           debate: "گفتگو و رای‌گیری",
           resolution: "نتیجه و پیامدها",
-          puzzle: "قفل امنیتی سیستم",
         }[game.phase]
       : null;
 
@@ -287,10 +280,13 @@ export function GameView({
             </Badge>
           )}
           {game?.stage === "playing" && (
-            <Badge className="hidden md:inline-flex">
-              سفر {game.chronicle.voyage} · دور {game.round}/{FINAL_ROUND}{" "}
-              · {phaseLabel}
-            </Badge>
+            <>
+              <Badge className="hidden md:inline-flex">
+                سفر {game.chronicle.voyage} · دور {game.round}/{FINAL_ROUND}{" "}
+                · {phaseLabel}
+              </Badge>
+              <MissionCountdownBadge game={game} />
+            </>
           )}
         </div>
         <div className="mr-auto flex items-center gap-2">
@@ -415,17 +411,14 @@ export function GameView({
             {game.stage === "lobby" && (
               <Lobby game={game} selfId={selfId} dispatch={dispatch} />
             )}
-            {game.stage === "playing" &&
-              (game.phase === "puzzle" ? (
-                <PuzzlePanel game={game} selfId={selfId} dispatch={dispatch} />
-              ) : (
-                <DilemmaPanel
-                  key={game.currentCardId ?? `r${game.round}`}
-                  game={game}
-                  selfId={selfId}
-                  dispatch={dispatch}
-                />
-              ))}
+            {game.stage === "playing" && (
+              <DilemmaPanel
+                key={game.currentCardId ?? `r${game.round}`}
+                game={game}
+                selfId={selfId}
+                dispatch={dispatch}
+              />
+            )}
             {game.stage === "ended" && (
               <EndingPanel game={game} selfId={selfId} dispatch={dispatch} />
             )}

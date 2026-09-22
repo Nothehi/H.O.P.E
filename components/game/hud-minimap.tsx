@@ -10,7 +10,7 @@
 import { useState } from "react";
 import { Activity, ShieldAlert, Zap, Navigation, ChevronDown, ChevronUp, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { CARDS, PUZZLES } from "@/lib/game/content";
+import { CARDS } from "@/lib/game/content";
 import type { GameState } from "@/lib/game/types";
 
 const ZONE_FA: Record<string, string> = {
@@ -53,14 +53,11 @@ export function HudMinimap({
   const moraleRatio = r.morale / r.max.morale;
   const integrityPercent = Math.round(((oxyRatio + hullRatio + moraleRatio) / 3) * 100);
 
-  // Active Card or Puzzle Objective
+  // Active Card Objective
   const activeCard = game.currentCardId ? CARDS[game.currentCardId] : null;
-  const currentPuzzle = game.phase === "puzzle" && game.puzzle ? PUZZLES[game.puzzle.puzzleId] : null;
 
   const currentObjective =
-    game.phase === "puzzle" && currentPuzzle
-      ? `حل قفل امنیتی: ${currentPuzzle.answer}`
-      : game.phase === "debate"
+    game.phase === "debate"
       ? `رای‌گیری توکن‌ها: ${activeCard?.title ?? "انتخاب گزینه‌ها"}`
       : game.phase === "peek"
       ? "هک تکنسین و بررسی عواقب"

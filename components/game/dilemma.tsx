@@ -12,16 +12,18 @@ import {
   RefreshCw,
   RotateCcw,
   Unlock,
+  ZoomIn,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CARDS, ENVELOPES } from "@/lib/game/content";
+import { CARDS, ENVELOPES, getCardImage } from "@/lib/game/content";
 import type {
   CardEffects,
   GameAction,
   GameState,
 } from "@/lib/game/types";
 import { RESOURCE_META, fmtDelta } from "./meta";
+import { DebateCountdown } from "./game-timer";
 
 export function ZoneVectorIcon({ zone }: { zone: string }) {
   switch (zone) {
@@ -144,7 +146,7 @@ export function EnvelopeReveal({ envelopeId }: { envelopeId: string }) {
   );
 }
 
-/** Flat Clean Cyberpunk Card component without 3D animations */
+/** Flat Clean Cyberpunk Card component with artwork inside our signature frame */
 function CyberpunkCard({
   cardId,
   game,
@@ -153,8 +155,10 @@ function CyberpunkCard({
   game: GameState;
 }) {
   const card = CARDS[cardId];
+  const [imageZoomed, setImageZoomed] = useState(false);
   if (!card) return null;
 
+  const cardImage = card.image || getCardImage(card.id);
   const res = game.lastResolution;
   const effects = res?.effects;
   const chosenText = res ? (res.winner === "A" ? card.optionA : card.optionB) : "";
@@ -162,34 +166,119 @@ function CyberpunkCard({
   return (
     <div className="space-y-4 max-w-full overflow-hidden" dir="rtl">
       {/* CRISIS CARD FRONT */}
-      <div className="frame-corners space-y-4 rounded-none border border-border bg-card p-4 md:p-5 shadow-xl max-w-full overflow-hidden">
+      <div className="frame-corners space-y-4 rounded-none border border-border bg-card p-4 md:p-5 shadow-2xl max-w-full overflow-hidden">
+        {/* HEADER */}
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <ZoneVectorIcon zone={card.zone} />
-            <h3 className="text-lg sm:text-xl font-black text-primary tracking-wide break-words whitespace-normal text-balance">{card.title}</h3>
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="p-1.5 bg-background/80 border border-primary/40 text-primary">
+              <ZoneVectorIcon zone={card.zone} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-[10px] text-secondary-foreground font-bold tracking-wider">
+                  // هشدار بحران عرشه // {card.id.toUpperCase()}
+                </span>
+              </div>
+              <h3 className="text-lg sm:text-xl font-black text-primary tracking-wide break-words whitespace-normal text-balance">
+                {card.title}
+              </h3>
+            </div>
           </div>
-          <Badge variant="secondary" className="font-bold border border-secondary-foreground/40 shrink-0">
+          <Badge variant="secondary" className="font-bold border border-secondary-foreground/40 shrink-0 font-mono text-xs">
             بخش: {card.zone}
           </Badge>
         </div>
-        <p className="text-sm leading-relaxed text-foreground/90 font-mono break-words max-w-full text-right">
-          {card.narrative}
-        </p>
-        <div className="grid gap-3 sm:grid-cols-2 pt-1 max-w-full">
-          <div className="rounded-none border border-primary/40 bg-primary/5 p-3 text-right max-w-full overflow-hidden">
-            <span className="font-mono text-xs font-black text-primary block mb-1">
-              گزینه الف (OPTION A)
-            </span>
-            <p className="text-sm font-semibold leading-snug break-words">{card.optionA}</p>
+
+        {/* CINEMATIC ARTWORK FRAME WITH OUR SIGNATURE CYBERPUNK BORDER */}
+        {cardImage && (
+          <div 
+            onClick={() => setImageZoomed(!imageZoomed)}
+            className="frame-corners relative w-full overflow-hidden border border-cyan-500/40 bg-black/90 aspect-video shadow-2xl group cursor-pointer my-2 select-none"
+            title="برای بزرگنمایی تصویر کلیک کنید"
+          >
+            <img
+              src={cardImage}
+              alt={card.title}
+              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              loading="eager"
+            />
+            {/* Subtle gradient vignette to blend into cyberpunk terminal */}
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#121522]/95 via-transparent to-black/30" />
+            
+            {/* Live Camera Feed Telemetry Overlays */}
+            <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1.5 px-2.5 py-1 bg-black/80 backdrop-blur-md border border-red-500/50 font-mono text-[10px] text-red-400 shadow-md">
+              <span className="inline-block size-2 rounded-full bg-red-500 animate-pulse" />
+              <span>دوربین زنده // مداربسته</span>
+            </div>
+            
+            <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5 px-2.5 py-1 bg-black/80 backdrop-blur-md border border-cyan-500/40 font-mono text-[10px] text-cyan-400 shadow-md">
+              <span>{card.zone.toUpperCase()} // OPTICAL SENSOR</span>
+            </div>
+
+            <div className="absolute bottom-2.5 right-2.5 left-2.5 z-10 flex items-center justify-between text-[10px] font-mono text-zinc-400 pointer-events-none">
+              <span className="bg-black/80 px-2 py-0.5 backdrop-blur-sm border border-white/10 font-bold text-primary">
+                سفینه H.O.P.E.
+              </span>
+              <span className="bg-black/80 px-2 py-0.5 backdrop-blur-sm border border-white/10 flex items-center gap-1 text-secondary-foreground">
+                <ZoomIn className="size-3" /> کلیک جهت بزرگنمایی
+              </span>
+            </div>
           </div>
-          <div className="rounded-none border border-secondary-foreground/40 bg-secondary/20 p-3 text-right max-w-full overflow-hidden">
-            <span className="font-mono text-xs font-black text-secondary-foreground block mb-1">
-              گزینه ب (OPTION B)
-            </span>
-            <p className="text-sm font-semibold leading-snug break-words">{card.optionB}</p>
+        )}
+
+        {/* NARRATIVE SECTION */}
+        <div className="border-r-2 border-primary bg-background/50 p-3 sm:p-3.5 text-right font-mono">
+          <div className="text-[11px] text-secondary-foreground font-bold mb-1.5 flex items-center justify-between border-b border-border/30 pb-1">
+            <span>// شرح رخداد اضطراری:</span>
+            <span className="text-[10px] text-muted-foreground">ثبت شده در گزارش کشیک</span>
+          </div>
+          <p className="text-sm leading-relaxed text-foreground/95 break-words">
+            {card.narrative}
+          </p>
+        </div>
+
+        {/* CHOICES / OPTIONS */}
+        <div className="grid gap-3 sm:grid-cols-2 pt-1 max-w-full">
+          <div className="rounded-none border border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors p-3 text-right max-w-full overflow-hidden">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="font-mono text-xs font-black text-primary">
+                گزینه الف (OPTION A)
+              </span>
+              <span className="text-[10px] font-mono text-primary/70">دستور عملیاتی ۱</span>
+            </div>
+            <p className="text-sm font-semibold leading-snug break-words text-foreground">{card.optionA}</p>
+          </div>
+          <div className="rounded-none border border-secondary-foreground/40 bg-secondary/20 hover:bg-secondary/30 transition-colors p-3 text-right max-w-full overflow-hidden">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="font-mono text-xs font-black text-secondary-foreground">
+                گزینه ب (OPTION B)
+              </span>
+              <span className="text-[10px] font-mono text-secondary-foreground/70">دستور عملیاتی ۲</span>
+            </div>
+            <p className="text-sm font-semibold leading-snug break-words text-foreground">{card.optionB}</p>
           </div>
         </div>
       </div>
+
+      {/* FULLSCREEN IMAGE MODAL / ZOOM OVERLAY */}
+      {imageZoomed && cardImage && (
+        <div 
+          onClick={() => setImageZoomed(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 cursor-zoom-out animate-in fade-in duration-200"
+        >
+          <div className="frame-corners relative max-w-4xl w-full max-h-[90vh] overflow-hidden border border-cyan-500/60 bg-[#0B1117] shadow-2xl p-1">
+            <div className="p-2 border-b border-border/60 flex items-center justify-between text-xs font-mono text-primary">
+              <span>{card.title} // {card.zone}</span>
+              <span className="text-secondary-foreground">کلیک برای بستن ✕</span>
+            </div>
+            <img
+              src={cardImage}
+              alt={card.title}
+              className="w-full max-h-[80vh] object-contain"
+            />
+          </div>
+        </div>
+      )}
 
       {/* CONSEQUENCE / RESOLUTION SUMMARY PANEL (IF VOTED) */}
       {game.phase === "resolution" && res && (
@@ -272,11 +361,20 @@ export function DilemmaPanel({
   if (game.phase === "reveal") {
     return (
       <div className="flex flex-col items-center gap-4 py-10 text-center" dir="rtl">
-        <div className="frame-corners flex h-48 w-40 sm:h-56 sm:w-44 flex-col items-center justify-center border bg-card shadow-2xl p-4">
-          <span className="font-mono text-[10px] sm:text-xs font-bold text-secondary-foreground mb-2">// CRISIS_CARD</span>
-          <span className="font-mono text-2xl sm:text-3xl font-black tracking-widest text-primary drop-shadow-[0_0_8px_rgba(252,238,10,0.4)]">
+        <div className="frame-corners flex h-56 w-44 sm:h-64 sm:w-48 flex-col items-center justify-center border border-cyan-500/40 bg-gradient-to-b from-[#121522] via-[#0B1117] to-[#06090E] shadow-2xl p-5 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,240,255,0.08)_0%,transparent_70%)] pointer-events-none" />
+          <img
+            src="/Logo.png"
+            alt="H.O.P.E."
+            className="w-24 h-auto object-contain mb-3 drop-shadow-[0_0_12px_rgba(252,238,10,0.5)] transition-transform duration-500 group-hover:scale-110"
+          />
+          <span className="font-mono text-[10px] font-bold text-secondary-foreground tracking-widest">// CRISIS_DECK</span>
+          <span className="font-mono text-2xl font-black tracking-widest text-primary drop-shadow-[0_0_8px_rgba(252,238,10,0.4)] mt-1">
             H.O.P.E.
           </span>
+          <div className="mt-4 flex items-center gap-1.5 px-2.5 py-0.5 bg-black/60 border border-primary/30 text-[9px] font-mono text-primary">
+            <span>دور {game.round} / ۱۰</span>
+          </div>
         </div>
         <p className="text-sm text-muted-foreground">
           دور {game.round} · {game.deck.length} کارت بحران مانده در دسته
@@ -352,6 +450,11 @@ export function DilemmaPanel({
         <CyberpunkCard
           cardId={card.id}
           game={game}
+        />
+        <DebateCountdown
+          game={game}
+          isModerator={iModerate}
+          dispatch={dispatch}
         />
         <div className="space-y-3 rounded-none border border-border bg-card p-4">
           <div className="flex items-center justify-between text-sm">

@@ -4,7 +4,6 @@ import { useState } from "react";
 import {
   ShieldAlert,
   Target,
-  Key,
   User,
   FolderLock,
   CheckCircle2,
@@ -12,7 +11,6 @@ import {
   Sparkles,
   FileText,
   AlertTriangle,
-  Fingerprint,
   Radio,
   Coins,
   Award,
@@ -31,7 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AGENDAS, CLUES, ENVELOPES, agendaMet } from "@/lib/game/content";
+import { AGENDAS, ENVELOPES, agendaMet } from "@/lib/game/content";
 import type { GameState, Seat } from "@/lib/game/types";
 import { ROLE_META } from "./meta";
 import { soundFx } from "@/lib/game/audio";
@@ -63,13 +61,12 @@ export function ClassifiedDossierDialog({
     .map((id) => ENVELOPES[id])
     .filter(Boolean);
 
-  const defaultTab = game.phase === "puzzle" ? "clues" : "agenda";
-  const [activeTab, setActiveTab] = useState(defaultTab);
+  const [activeTab, setActiveTab] = useState("agenda");
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (nextOpen) {
       soundFx.playClassifiedOpen();
-      setActiveTab(game.phase === "puzzle" ? "clues" : "agenda");
+      setActiveTab("agenda");
     }
     setOpen(nextOpen);
   };
@@ -85,11 +82,6 @@ export function ClassifiedDossierDialog({
             <ShieldAlert className="size-4 text-red-500 animate-pulse" />
             مشاهده پرونده محرمانه
           </span>
-          {mySeat.clueIds && mySeat.clueIds.length > 0 && (
-            <Badge className="bg-red-600/80 text-white font-mono text-[10px] px-1.5 py-0.5 border-none">
-              {mySeat.clueIds.length} سرنخ
-            </Badge>
-          )}
         </Button>
       </DialogTrigger>
 
@@ -128,26 +120,13 @@ export function ClassifiedDossierDialog({
 
         {/* Tabs System */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-4 w-full bg-red-950/40 border-b border-red-500/30 p-1.5 rounded-none gap-1 h-auto">
+          <TabsList className="grid grid-cols-3 w-full bg-red-950/40 border-b border-red-500/30 p-1.5 rounded-none gap-1 h-auto">
             <TabsTrigger
               value="agenda"
               className="data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_12px_rgba(239,68,68,0.6)] text-xs text-red-300/70 hover:text-red-200 font-bold py-2 rounded-none transition-all flex items-center gap-1.5 justify-center"
             >
               <Target className="size-3.5" />
               <span>دستورکار</span>
-            </TabsTrigger>
-
-            <TabsTrigger
-              value="clues"
-              className="data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_12px_rgba(239,68,68,0.6)] text-xs text-red-300/70 hover:text-red-200 font-bold py-2 rounded-none transition-all flex items-center gap-1.5 justify-center"
-            >
-              <Key className="size-3.5" />
-              <span>سرنخ‌ها</span>
-              {mySeat.clueIds && mySeat.clueIds.length > 0 && (
-                <span className="mr-1 text-[10px] bg-red-900/80 px-1 py-0.2 rounded font-mono">
-                  {mySeat.clueIds.length}
-                </span>
-              )}
             </TabsTrigger>
 
             <TabsTrigger
@@ -243,66 +222,7 @@ export function ClassifiedDossierDialog({
             </ScrollArea>
           </TabsContent>
 
-          {/* TAB 2: مدارک و سرنخ‌ها (CLUES & EVIDENCE) */}
-          <TabsContent value="clues" className="m-0 focus-visible:outline-none">
-            <ScrollArea className="h-[360px] sm:h-[390px] p-4 scrollbar-cyber-red [&_[data-slot=scroll-area-thumb]]:bg-red-500 [&_[data-slot=scroll-area-thumb]]:shadow-[0_0_10px_#ef4444] [&_[data-slot=scroll-area-scrollbar]]:border-l-red-950/60 [&_[data-slot=scroll-area-scrollbar]]:bg-red-950/20">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs text-red-400 font-mono pb-1 border-b border-red-500/20">
-                  <span className="flex items-center gap-1.5">
-                    <Fingerprint className="size-3.5" />
-                    تکه‌های رمزگشایی اختصاصی
-                  </span>
-                  <span>{mySeat.clueIds?.length ?? 0} سرنخ در اختیار</span>
-                </div>
-
-                {mySeat.clueIds && mySeat.clueIds.length > 0 ? (
-                  mySeat.clueIds.map((id, index) => {
-                    const clue = CLUES[id];
-                    if (!clue) return null;
-
-                    const puzzleLabel =
-                      clue.puzzle === "lock3"
-                        ? "دور ۳: قفل آشیانه کپسول‌ها (Lock 3)"
-                        : clue.puzzle === "reactor6"
-                        ? "دور ۶: خنک‌کننده راکتور (Coolant Loop 6)"
-                        : "دور ۹: دیوار آتش آمارا (Firewall 9)";
-
-                    return (
-                      <div
-                        key={id}
-                        className="rounded-none border border-red-500/30 bg-[#0B1117]/80 p-3.5 space-y-2 hover:border-red-400 transition-colors"
-                      >
-                        <div className="flex items-center justify-between">
-                          <Badge
-                            variant="outline"
-                            className="text-[10px] font-mono border-red-500/40 text-red-300 bg-red-950/30"
-                          >
-                            {puzzleLabel}
-                          </Badge>
-                          <span className="text-[10px] font-mono text-muted-foreground">
-                            قطعه #{index + 1}
-                          </span>
-                        </div>
-                        <p className="text-sm font-mono text-foreground leading-relaxed p-2.5 bg-black/40 border border-red-950">
-                          🔑 {clue.text}
-                        </p>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="p-8 text-center text-muted-foreground font-mono text-xs space-y-2">
-                    <Key className="size-8 mx-auto text-muted-foreground/40 stroke-1" />
-                    <p>در حال حاضر هیچ مدرک یا سرنخ اختصاصی ثبت نشده است.</p>
-                    <p className="text-[11px] text-muted-foreground/60">
-                      سرنخ‌ها در آغاز دورهای قفل امنیتی بین خدمه توزیع می‌شوند.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </ScrollArea>
-          </TabsContent>
-
-          {/* TAB 3: سوابق و مشخصات پرسنلی (PERSONNEL PROFILE) */}
+          {/* TAB 2: سوابق و مشخصات پرسنلی (PERSONNEL PROFILE) */}
           <TabsContent value="profile" className="m-0 focus-visible:outline-none">
             <ScrollArea className="h-[360px] sm:h-[390px] p-4 scrollbar-cyber-red [&_[data-slot=scroll-area-thumb]]:bg-red-500 [&_[data-slot=scroll-area-thumb]]:shadow-[0_0_10px_#ef4444] [&_[data-slot=scroll-area-scrollbar]]:border-l-red-950/60 [&_[data-slot=scroll-area-scrollbar]]:bg-red-950/20">
               <div className="space-y-4 font-mono text-right">

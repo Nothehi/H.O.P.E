@@ -18,7 +18,6 @@ import {
   Sparkles,
   Save,
   Trash2,
-  Tag,
   Clock,
   CheckCircle2,
   FileText,
@@ -40,7 +39,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { CLUES, ENVELOPES } from "@/lib/game/content";
+import { ENVELOPES } from "@/lib/game/content";
 import type { GameState, Role, Seat } from "@/lib/game/types";
 import { ROLE_META } from "./meta";
 import { soundFx } from "@/lib/game/audio";
@@ -328,10 +327,6 @@ export function InventoryDialog({
     .map((id) => ENVELOPES[id])
     .filter(Boolean);
 
-  const cluesHeld = (mySeat?.clueIds || [])
-    .map((cid) => CLUES[cid])
-    .filter(Boolean);
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -438,15 +433,15 @@ export function InventoryDialog({
               )}
             </TabsTrigger>
             <TabsTrigger
-              value="clues"
+              value="stickers"
               className="gap-1.5 text-xs data-[state=active]:bg-amber-950/50 data-[state=active]:text-amber-400 data-[state=active]:border-amber-500/40"
             >
-              <Tag className="size-3.5" />
-              <span className="hidden sm:inline">سرنخ‌ها و نشان‌ها</span>
-              <span className="sm:hidden">سرنخ‌ها</span>
-              {cluesHeld.length > 0 && (
-                <Badge className="bg-red-500/20 text-red-300 text-[10px] px-1 py-0 border-none font-mono">
-                  {cluesHeld.length}
+              <Sparkles className="size-3.5" />
+              <span className="hidden sm:inline">برچسب‌ها و نشان‌ها</span>
+              <span className="sm:hidden">برچسب‌ها</span>
+              {game.chronicle.stickers.length > 0 && (
+                <Badge className="bg-amber-500/20 text-amber-300 text-[10px] px-1 py-0 border-none font-mono">
+                  {game.chronicle.stickers.length}
                 </Badge>
               )}
             </TabsTrigger>
@@ -707,42 +702,10 @@ export function InventoryDialog({
             </ScrollArea>
           </TabsContent>
 
-          {/* TAB 4: CLUES & SHIP BADGES */}
-          <TabsContent value="clues" className="flex-1 min-h-0 m-0 p-4">
+          {/* TAB 4: SHIP STICKERS & UPGRADES */}
+          <TabsContent value="stickers" className="flex-1 min-h-0 m-0 p-4">
             <ScrollArea className="h-[48vh] pr-2">
               <div className="space-y-4">
-                {/* Clues held */}
-                <div>
-                  <h4 className="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
-                    <Tag className="size-3.5 text-red-400" />
-                    سرنخ‌های امنیتی در اختیار شما ({cluesHeld.length})
-                  </h4>
-
-                  {cluesHeld.length === 0 ? (
-                    <div className="rounded-lg border border-border/60 bg-muted/20 p-4 text-center text-xs text-muted-foreground">
-                      در حال حاضر سرنخ اختصاصی در جیب سازمانی شما نیست. سرنخ‌های دورهای ۳، ۶ و ۹ در اختیار سایر همکاران شما در سفینه است؛ از طریق بیسیم از آن‌ها بپرسید!
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {cluesHeld.map((c) => (
-                        <div
-                          key={c.id}
-                          className="rounded-lg border border-red-500/40 bg-red-950/20 p-3 text-xs"
-                        >
-                          <div className="flex items-center justify-between mb-1.5">
-                            <span className="font-mono text-[10px] text-red-400 font-bold bg-red-950/60 px-1.5 py-0.5 rounded border border-red-500/30">
-                              {c.id} · {c.puzzle}
-                            </span>
-                            <span className="text-[10px] text-muted-foreground">سرنخ رمزگشایی قفل</span>
-                          </div>
-                          <p className="text-foreground/90 leading-relaxed font-sans">
-                            {c.text}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
 
                 {/* Legacy Stickers on Ship */}
                 <div>
@@ -753,7 +716,7 @@ export function InventoryDialog({
 
                   {game.chronicle.stickers.length === 0 ? (
                     <div className="rounded-lg border border-border/60 bg-muted/20 p-4 text-center text-xs text-muted-foreground">
-                      هنوز برچسبی روی سکتورهای سفینه نصب نشده است. با پیشرفت کمپین و حل معماها برچسب‌های پایدار ثبت خواهند شد.
+                      هنوز برچسبی روی سکتورهای سفینه نصب نشده است. با پیشرفت کمپین و تصمیم‌گیری در بحران‌ها برچسب‌های پایدار ثبت خواهند شد.
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

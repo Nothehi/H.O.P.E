@@ -115,6 +115,29 @@ export function useGame(
     sendApp({ t: "state", state: gameRef.current } satisfies AppMessage);
   }, [isHost, selfId, members, hostApply, sendApp, game]);
 
+  // Host timer ticker: monitors mission and debate deadlines
+  useEffect(() => {
+    if (!isHost || status !== "connected") return;
+    const interval = setInterval(() => {
+      const g = gameRef.current;
+      const self = selfIdRef.current;
+      if (!g || !self || g.stage !== "playing" || g.timerPaused) return;
+
+      const now = Date.now();
+      if (g.missionDeadline && now >= g.missionDeadline) {
+        hostApply(self, { type: "mission-timeout" });
+        return;
+      }
+
+      if (g.phase === "debate" && g.debateDeadline && now >= g.debateDeadline) {
+        hostApply(self, { type: "debate-timeout" });
+        return;
+      }
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [isHost, status, hostApply]);
+
   const dispatch = useCallback(
     (action: GameAction) => {
       const self = selfIdRef.current;
